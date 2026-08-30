@@ -1,0 +1,1924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PROJECT R.E.A.P. — Energy Monitoring</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+<!-- [CSS-START] -->
+    --sw-orange:    #f97316;
+    --sw-orange-bg: #fff7ed;
+    --sw-green:     #16a34a;
+    --sw-green-bg:  #f0fdf4;
+    --sw-red:       #dc2626;
+    --sw-red-bg:    #fef2f2;
+    --sw-blue:      #2563eb;
+    --sw-muted:     #6b7280;
+    --sw-border:    #e5e7eb;
+    --font-data:    'Geist Mono', 'Courier New', monospace;
+    --font-ui:      'Geist', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: var(--font-ui); background: #f8fafc; margin: 0; }
+  .sw-topnav { background: #fff; border-bottom: 1px solid var(--sw-border); position: sticky; top: 0; z-index: 100; }
+  .sw-topnav-row1 { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; border-bottom: 1px solid #f3f4f6; }
+  .sw-logo { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; color: #111827; text-decoration: none; }
+  .sw-logo-icon { width: 30px; height: 30px; background: var(--sw-orange); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
+  .sw-logo-icon svg { width: 15px; height: 15px; stroke-width: 2.5; }
+  .sw-topnav-meta { font-size: 11px; color: var(--sw-muted); font-family: var(--font-data); }
+  .sw-navtabs { display: flex; align-items: center; gap: 2px; padding: 0 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .sw-navtabs::-webkit-scrollbar { display: none; }
+  .sw-navtab { display: flex; align-items: center; gap: 6px; padding: 10px 14px; font-size: 12px; font-weight: 500; color: #6b7280; cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; margin-bottom: -1px; font-family: var(--font-ui); white-space: nowrap; transition: all 0.15s; }
+  .sw-navtab:hover { color: #374151; }
+  .sw-navtab.active { color: var(--sw-orange); border-bottom-color: var(--sw-orange); }
+  .sw-navtab svg { width: 14px; height: 14px; stroke-width: 1.75; flex-shrink: 0; }
+  .sw-navsep { width: 1px; height: 16px; background: #e5e7eb; margin: 0 4px; flex-shrink: 0; }
+  .sw-hamburger { display: none; background: none; border: 1px solid #d1d5db; border-radius: 6px; padding: 5px 8px; cursor: pointer; color: #6b7280; }
+  .sw-hamburger svg { width: 16px; height: 16px; }
+  .sw-mobile-menu { display: none; flex-direction: column; padding: 8px 12px 12px; border-top: 1px solid #f3f4f6; }
+  .sw-mobile-menu.open { display: flex; }
+  .sw-mobile-navitem { display: flex; align-items: center; gap: 8px; padding: 9px 12px; font-size: 13px; font-weight: 500; color: #6b7280; border-radius: 6px; cursor: pointer; border: none; background: none; font-family: var(--font-ui); width: 100%; text-align: left; transition: all 0.15s; }
+  .sw-mobile-navitem:hover { background: #f3f4f6; color: #374151; }
+  .sw-mobile-navitem.active { background: var(--sw-orange-bg); color: var(--sw-orange); }
+  .sw-mobile-navitem svg { width: 15px; height: 15px; stroke-width: 1.75; flex-shrink: 0; }
+  .sw-mobile-sep { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600; color: #9ca3af; padding: 10px 12px 4px; }
+  @media (max-width: 768px) {
+    .sw-navtabs { display: none; }
+    .sw-hamburger { display: flex; align-items: center; }
+    .sw-topnav-meta { display: none; }
+    .page-body { padding: 12px !important; }
+    .sw-grid-3 { grid-template-columns: 1fr !important; }
+    .sw-grid-chart { grid-template-columns: 1fr !important; }
+    .sw-grid-2 { grid-template-columns: 1fr !important; }
+    .sw-grid-4 { grid-template-columns: repeat(2,1fr) !important; }
+    .sw-grand-grid { grid-template-columns: repeat(2,1fr) !important; }
+  }
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .sw-grid-3 { grid-template-columns: 1fr 1fr !important; }
+    .sw-grid-chart { grid-template-columns: 1fr !important; }
+  }
+  .page-header { padding: 14px 20px; border-bottom: 1px solid var(--sw-border); background: #fff; margin-bottom: 0; }
+  .page-header-title { font-size: 14px; font-weight: 600; color: #111827; }
+  .page-header-sub { font-size: 11px; color: var(--sw-muted); font-family: var(--font-data); margin-top: 1px; }
+  .sw-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; font-size: 10px; font-weight: 600; font-family: var(--font-data); letter-spacing: 0.03em; border: 1px solid transparent; }
+  .sw-badge-live    { background: var(--sw-green-bg); color: var(--sw-green); border-color: #bbf7d0; }
+  .sw-badge-sim     { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+  .sw-badge-normal  { background: var(--sw-green-bg); color: var(--sw-green); border-color: #bbf7d0; }
+  .sw-badge-anomaly { background: var(--sw-red-bg); color: var(--sw-red); border-color: #fecaca; animation: flash 0.8s infinite; }
+  .sw-badge-offline { background: #f9fafb; color: #9ca3af; border-color: #e5e7eb; }
+  .sw-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  .sw-dot.pulse { animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  @keyframes flash { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .btn-sw-sim { padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; border: 1px solid #d1d5db; background: #fff; color: #374151; cursor: pointer; font-family: var(--font-ui); display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s; }
+  .btn-sw-sim:hover { border-color: #9ca3af; background: #f9fafb; }
+  .btn-sw-sim:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-sw-sim svg { width: 12px; height: 12px; }
+  .btn-sw-refresh { padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 500; border: 1px solid #d1d5db; background: #fff; color: #6b7280; cursor: pointer; font-family: var(--font-ui); display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s; }
+  .btn-sw-refresh:hover { border-color: #9ca3af; color: #374151; }
+  .btn-sw-refresh svg { width: 11px; height: 11px; }
+  .sw-bell { position: relative; width: 30px; height: 30px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #6b7280; transition: all 0.15s; }
+  .sw-bell:hover { border-color: #9ca3af; color: #374151; }
+  .sw-bell svg { width: 14px; height: 14px; }
+  .sw-bell-count { position: absolute; top: -4px; right: -4px; min-width: 14px; height: 14px; background: var(--sw-red); border-radius: 7px; font-size: 9px; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: center; padding: 0 3px; font-family: var(--font-data); }
+  .page-body { padding: 16px 20px; }
+  .sw-card { background: #fff; border: 1px solid var(--sw-border); border-radius: 8px; }
+  .sw-card-header { padding: 10px 14px; border-bottom: 1px solid var(--sw-border); display: flex; align-items: center; justify-content: space-between; }
+  .sw-card-title { font-size: 10px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.06em; }
+  .sw-appliance-card { background: #fff; border: 1px solid var(--sw-border); border-radius: 8px; overflow: hidden; }
+  .sw-appliance-card.ch1 { border-top: 3px solid #f97316; }
+  .sw-appliance-card.ch2 { border-top: 3px solid #2563eb; }
+  .sw-appliance-card.ch3 { border-top: 3px solid #16a34a; }
+  .sw-appliance-card.offline { opacity: 0.5; }
+  .sw-app-head { padding: 10px 14px 8px; border-bottom: 1px solid #f3f4f6; display: flex; align-items: center; justify-content: space-between; }
+  .sw-app-ident { display: flex; align-items: center; gap: 8px; }
+  .sw-app-icon { width: 26px; height: 26px; border-radius: 5px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .sw-app-icon svg { width: 13px; height: 13px; }
+  .sw-app-icon.ch1 { background: #fff7ed; color: #ea580c; }
+  .sw-app-icon.ch2 { background: #eff6ff; color: #2563eb; }
+  .sw-app-icon.ch3 { background: #f0fdf4; color: #16a34a; }
+  .sw-app-icon.off { background: #f9fafb; color: #9ca3af; }
+  .sw-app-name { font-size: 12px; font-weight: 600; color: #111827; }
+  .sw-app-ch   { font-size: 10px; color: #9ca3af; font-family: var(--font-data); }
+  .sw-watt-section { padding: 10px 14px 8px; border-bottom: 1px solid #f3f4f6; }
+  .sw-watt-label { font-size: 9px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
+  .sw-watt-num { font-size: 28px; font-weight: 700; font-family: var(--font-data); color: #111827; line-height: 1.1; letter-spacing: -0.02em; }
+  .sw-watt-unit { font-size: 12px; font-weight: 400; color: #9ca3af; margin-left: 2px; }
+  .sw-metrics { padding: 10px 14px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; border-bottom: 1px solid #f3f4f6; }
+  .sw-metric-label { font-size: 9px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+  .sw-metric-value { font-size: 11px; font-weight: 600; font-family: var(--font-data); color: #374151; }
+  .sw-metric-value.green { color: var(--sw-green); }
+  .sw-metric-value.blue  { color: #0369a1; }
+  .sw-app-footer { padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .sw-expand-btn { font-size: 10px; color: #9ca3af; cursor: pointer; background: none; border: none; font-family: var(--font-ui); font-weight: 500; display: flex; align-items: center; gap: 3px; transition: color 0.15s; padding: 2px 0; }
+  .sw-expand-btn:hover { color: #6b7280; }
+  .sw-expand-btn svg { width: 10px; height: 10px; }
+  .sw-expanded { display: none; padding: 10px 14px; border-top: 1px solid #f3f4f6; }
+  .sw-expanded.open { display: block; }
+  .sw-detail { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #f9fafb; font-size: 11px; }
+  .sw-detail:last-child { border-bottom: none; }
+  .sw-detail-label { color: #9ca3af; }
+  .sw-detail-value { font-family: var(--font-data); font-weight: 500; color: #374151; }
+  .sw-toggle { position: relative; width: 34px; height: 18px; cursor: pointer; display: inline-block; flex-shrink: 0; }
+  .sw-toggle input { display: none; }
+  .sw-toggle-track { position: absolute; inset: 0; background: #d1d5db; border-radius: 9px; transition: background 0.2s; }
+  .sw-toggle input:checked + .sw-toggle-track { background: #16a34a; }
+  .sw-toggle-thumb { position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; background: white; border-radius: 50%; transition: left 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.2); pointer-events: none; }
+  .sw-toggle input:checked ~ .sw-toggle-thumb { left: 18px; }
+  .sw-stat { background: #fff; border: 1px solid var(--sw-border); border-radius: 8px; padding: 12px 16px; }
+  .sw-stat-label { font-size: 10px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .sw-stat-value { font-size: 20px; font-weight: 700; font-family: var(--font-data); color: #111827; }
+  .sw-stat-sub { font-size: 10px; color: #9ca3af; margin-top: 2px; }
+  .sw-stat-value.green { color: var(--sw-green); }
+  .sw-stat-value.blue  { color: #0369a1; }
+  .sw-stat-value.red   { color: var(--sw-red); }
+  .sw-chart-card { background: #fff; border: 1px solid var(--sw-border); border-radius: 8px; padding: 14px; }
+  .sw-chart-title { font-size: 11px; font-weight: 600; color: #374151; margin-bottom: 2px; }
+  .sw-chart-sub   { font-size: 10px; color: #9ca3af; margin-bottom: 10px; }
+  .sw-chart-legend { display: flex; gap: 12px; margin-bottom: 8px; }
+  .sw-legend-item { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #6b7280; }
+  .sw-legend-dot  { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .sw-control-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border: 1px solid #f3f4f6; border-radius: 6px; background: #fafafa; margin-bottom: 5px; transition: opacity 0.2s; }
+  .sw-control-row:last-child { margin-bottom: 0; }
+  .sw-control-row.offline { opacity: 0.45; }
+  .sw-control-info { display: flex; align-items: center; gap: 8px; }
+  .sw-control-icon { width: 22px; height: 22px; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+  .sw-control-icon svg { width: 11px; height: 11px; }
+  .sw-control-icon.ch1 { background: #fff7ed; color: #ea580c; }
+  .sw-control-icon.ch2 { background: #eff6ff; color: #2563eb; }
+  .sw-control-icon.ch3 { background: #f0fdf4; color: #16a34a; }
+  .sw-control-name { font-size: 12px; font-weight: 500; color: #374151; }
+  .sw-control-watt { font-size: 10px; color: #9ca3af; font-family: var(--font-data); }
+  .sw-feed-item { padding: 7px 0; border-bottom: 1px solid #f3f4f6; font-size: 11px; display: flex; align-items: flex-start; gap: 8px; }
+  .sw-feed-item:last-child { border-bottom: none; }
+  .sw-feed-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sw-red); margin-top: 3px; flex-shrink: 0; }
+  .sw-feed-dot.gray { background: #d1d5db; }
+  .sw-feed-text { color: #374151; line-height: 1.4; font-family: var(--font-data); font-size: 10px; }
+  .sw-feed-time { color: #9ca3af; font-size: 9px; margin-top: 2px; }
+  .sw-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .sw-table th { background: #f9fafb; font-size: 9px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.06em; padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--sw-border); white-space: nowrap; }
+  .sw-table td { padding: 7px 12px; border-bottom: 1px solid #f9fafb; vertical-align: middle; font-family: var(--font-data); color: #374151; }
+  .sw-table tr:last-child td { border-bottom: none; }
+  .sw-table tr:hover td { background: #fafafa; }
+  .sw-tag { padding: 1px 7px; border-radius: 4px; font-size: 9px; font-weight: 600; font-family: var(--font-ui); text-transform: uppercase; letter-spacing: 0.04em; }
+  .sw-tag-rice    { background: #fff7ed; color: #ea580c; }
+  .sw-tag-tv      { background: #eff6ff; color: #2563eb; }
+  .sw-tag-charger { background: #f0fdf4; color: #16a34a; }
+  .sw-empty { padding: 28px; text-align: center; color: #9ca3af; font-size: 11px; font-family: var(--font-ui); }
+  .sw-sev { height: 3px; border-radius: 2px; background: #e5e7eb; overflow: hidden; width: 48px; display: inline-block; vertical-align: middle; }
+  .sw-sev-fill { height: 100%; border-radius: 2px; }
+  .sw-action { padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 700; font-family: var(--font-ui); text-transform: uppercase; letter-spacing: 0.04em; }
+  .sw-action-shutdown { background: var(--sw-red-bg); color: var(--sw-red); }
+  .sw-notif { position: fixed; top: 14px; right: 14px; background: #fff; border: 1px solid #e5e7eb; box-shadow: 0 4px 12px rgba(0,0,0,0.08); color: #374151; padding: 10px 14px; border-radius: 8px; font-size: 11px; font-weight: 500; z-index: 9999; opacity: 0; transform: translateY(-8px); transition: all 0.25s; max-width: 260px; border-left: 3px solid var(--sw-red); }
+  .sw-notif.show { opacity: 1; transform: translateY(0); }
+  .sw-notif-title { font-size: 10px; font-weight: 700; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .sw-sum-card { background: #fff; border: 1px solid var(--sw-border); border-radius: 8px; padding: 14px; }
+  .sw-sum-name { font-size: 13px; font-weight: 600; color: #111827; }
+  .sw-sum-ch { font-size: 10px; color: #9ca3af; margin-top: 1px; }
+  .sw-sum-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #f3f4f6; font-size: 11px; }
+  .sw-sum-row:last-child { border-bottom: none; }
+  .sw-sum-lbl { color: #9ca3af; }
+  .sw-sum-val { font-family: var(--font-data); font-weight: 500; color: #374151; }
+  .sw-grand { background: #111827; border-radius: 8px; padding: 16px 20px; color: #fff; }
+  .sw-grand-lbl { font-size: 9px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+  .sw-grand-val { font-size: 18px; font-weight: 700; font-family: var(--font-data); }
+  .sw-grand-val.green { color: #4ade80; }
+  .sw-grand-val.blue  { color: #67e8f9; }
+  .sw-proj-item { background: #f9fafb; border: 1px solid #f3f4f6; border-radius: 6px; padding: 10px; text-align: center; }
+  .sw-proj-lbl { font-size: 9px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .sw-proj-val { font-size: 16px; font-weight: 700; font-family: var(--font-data); color: #111827; }
+  .sw-proj-val.green { color: var(--sw-green); }
+  .sw-proj-val.blue  { color: #0369a1; }
+  .sw-proj-sub { font-size: 9px; color: #9ca3af; margin-top: 2px; }
+  .sw-tabs { display: flex; gap: 2px; padding: 10px 20px 0; border-bottom: 1px solid var(--sw-border); background: #fff; }
+  .sw-tab { padding: 8px 16px; font-size: 12px; font-weight: 500; color: #6b7280; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; background: none; border-top: none; border-left: none; border-right: none; font-family: var(--font-ui); display: flex; align-items: center; gap: 6px; }
+  .sw-tab:hover { color: #374151; }
+  .sw-tab.active { color: var(--sw-orange); border-bottom-color: var(--sw-orange); }
+  .sw-tab svg { width: 13px; height: 13px; }
+  .sw-view { display: none; }
+  .sw-view.active { display: block; }
+  .g-12 { gap: 12px; }
+  .mb-12 { margin-bottom: 12px; }
+  .mt-12 { margin-top: 12px; }
+  .sw-meta { display: flex; justify-content: space-between; align-items: center; font-size: 11px; padding: 4px 0; }
+  .sw-meta-lbl { color: #9ca3af; }
+  .sw-meta-val { font-family: var(--font-data); font-weight: 500; color: #374151; }
+  .sw-astat { background: #fff; border: 1px solid var(--sw-border); border-radius: 8px; padding: 12px 14px; }
+  .sw-astat-lbl { font-size: 9px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
+  .sw-astat-val { font-size: 20px; font-weight: 700; font-family: var(--font-data); color: #111827; }
+  .sw-astat-val.red { color: var(--sw-red); }
+  .sw-astat-val.orange { color: var(--sw-orange); }
+  .sw-astat-val.green { color: var(--sw-green); }
+  .sw-astat-val.blue { color: var(--sw-blue); }
+  /* ===== HISTORY FILTER ===== */
+  .sw-hfilter-bar { display:flex; align-items:center; gap:4px; flex-wrap:wrap; }
+  .sw-hfilter-btn { padding:5px 12px; border-radius:6px; font-size:11px; font-weight:500; border:1px solid #d1d5db; background:#fff; color:#6b7280; cursor:pointer; font-family:var(--font-ui); transition:all 0.15s; }
+  .sw-hfilter-btn:hover { border-color:#9ca3af; color:#374151; }
+  .sw-hfilter-btn.active { border-color:var(--sw-orange); background:var(--sw-orange-bg); color:var(--sw-orange); font-weight:600; }
+  .sw-date-input { padding:4px 8px; border:1px solid #d1d5db; border-radius:6px; font-size:11px; font-family:var(--font-data); color:#374151; background:#fff; cursor:pointer; }
+  .sw-date-input:focus { outline:none; border-color:var(--sw-orange); }
+  .sw-hstat-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; }
+  .sw-hstat { background:#fff; border:1px solid var(--sw-border); border-radius:8px; padding:10px 14px; }
+  .sw-hstat-lbl { font-size:9px; color:#9ca3af; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:4px; }
+  .sw-hstat-val { font-size:18px; font-weight:700; font-family:var(--font-data); color:#111827; }
+  .sw-hstat-sub { font-size:9px; color:#9ca3af; margin-top:2px; }
+  .sw-completeness-bar { height:3px; background:#e5e7eb; border-radius:2px; margin-top:6px; overflow:hidden; }
+  .sw-completeness-fill { height:100%; border-radius:2px; transition:width 0.4s; }
+  @media (max-width:768px) { .sw-hstat-grid { grid-template-columns:repeat(2,1fr) !important; } }
+<!-- [CSS-END] -->
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <nav class="sw-topnav">
+    <div class="sw-topnav-row1">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="sw-logo">
+          <div class="sw-logo-icon"><i data-lucide="zap"></i></div>
+          PROJECT R.E.A.P.
+        </div>
+        <div class="sw-topnav-meta" id="topbar-sub">San Fernando, Cebu · Initializing...</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span id="conn-badge" class="sw-badge sw-badge-sim"><span class="sw-dot"></span><span id="conn-text">SIM</span></span>
+        <button class="btn-sw-sim" id="sim-btn" onclick="simulateAnomaly()">
+          <i data-lucide="zap"></i> Simulate Anomaly
+        </button>
+        <div class="sw-bell" onclick="showView('anomaly')">
+          <i data-lucide="bell"></i>
+          <div class="sw-bell-count" id="alert-count" style="display:none">0</div>
+        </div>
+        <button class="sw-hamburger" onclick="toggleMobileMenu()"><i data-lucide="menu"></i></button>
+      </div>
+    </div>
+    <div class="sw-navtabs">
+      <button class="sw-navtab active" onclick="showView('dashboard',this)"><i data-lucide="activity"></i> Live Dashboard</button>
+      <button class="sw-navtab" onclick="showView('graphs',this)"><i data-lucide="trending-up"></i> Graphs</button>
+      <div class="sw-navsep"></div>
+      <button class="sw-navtab" onclick="showView('history',this)"><i data-lucide="history"></i> History</button>
+      <button class="sw-navtab" onclick="showView('anomaly',this)"><i data-lucide="alert-triangle"></i> Anomaly Log</button>
+      <div class="sw-navsep"></div>
+      <button class="sw-navtab" onclick="showView('summary',this)"><i data-lucide="layout-dashboard"></i> Summary</button>
+      <button class="sw-navtab" onclick="showView('status',this)"><i data-lucide="server"></i> Status</button>
+    </div>
+    <div class="sw-mobile-menu" id="mobile-menu">
+      <div class="sw-mobile-sep">Monitor</div>
+      <button class="sw-mobile-navitem active" onclick="showView('dashboard',this);toggleMobileMenu()"><i data-lucide="activity"></i> Live Dashboard</button>
+      <button class="sw-mobile-navitem" onclick="showView('graphs',this);toggleMobileMenu()"><i data-lucide="trending-up"></i> Graphs</button>
+      <div class="sw-mobile-sep">Records</div>
+      <button class="sw-mobile-navitem" onclick="showView('history',this);toggleMobileMenu()"><i data-lucide="history"></i> History</button>
+      <button class="sw-mobile-navitem" onclick="showView('anomaly',this);toggleMobileMenu()"><i data-lucide="alert-triangle"></i> Anomaly Log</button>
+      <div class="sw-mobile-sep">Reports</div>
+      <button class="sw-mobile-navitem" onclick="showView('summary',this);toggleMobileMenu()"><i data-lucide="layout-dashboard"></i> Summary</button>
+      <button class="sw-mobile-navitem" onclick="showView('status',this);toggleMobileMenu()"><i data-lucide="server"></i> Status</button>
+      <div style="padding:8px 12px;border-top:1px solid #f3f4f6;margin-top:6px;display:flex;align-items:center;justify-content:space-between;">
+        <span id="conn-badge-m" class="sw-badge sw-badge-sim"><span class="sw-dot"></span><span id="conn-text-m">SIM</span></span>
+        <span style="font-size:10px;color:#9ca3af;font-family:var(--font-data)" id="data-source-m">Simulation</span>
+      </div>
+    </div>
+  </nav>
+
+  <div>
+    <div class="sw-notif" id="sw-notif">
+      <div class="sw-notif-title" id="notif-title">Alert</div>
+      <div id="notif-body">—</div>
+    </div>
+
+    <!-- DASHBOARD VIEW -->
+    <div class="sw-view active" id="view-dashboard">
+      <div class="page-body" style="padding:16px 20px;">
+        <div class="sw-grid-3 mb-12" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+          <!-- CH1 — Iron (instrumented) -->
+          <div class="sw-appliance-card ch1" id="card-rice">
+            <div class="sw-app-head">
+              <div class="sw-app-ident">
+                <div class="sw-app-icon ch1"><i data-lucide="utensils"></i></div>
+                <div><div class="sw-app-name">Iron</div><div class="sw-app-ch">CH 1 · instrumented</div></div>
+              </div>
+              <span class="sw-badge sw-badge-normal" id="status-rice"><span class="sw-dot pulse"></span>NORMAL</span>
+            </div>
+            <div class="sw-watt-section">
+              <div class="sw-watt-label">Power Draw</div>
+              <div class="sw-watt-num" id="w-rice">—<span class="sw-watt-unit">W</span></div>
+            </div>
+            <div class="sw-metrics">
+              <div><div class="sw-metric-label">Voltage</div><div class="sw-metric-value" id="v-rice">—</div></div>
+              <div><div class="sw-metric-label">Current</div><div class="sw-metric-value" id="a-rice">—</div></div>
+              <div><div class="sw-metric-label">Energy</div><div class="sw-metric-value" id="e-rice">—</div></div>
+              <div><div class="sw-metric-label">Cost</div><div class="sw-metric-value green" id="c-rice">—</div></div>
+              <div><div class="sw-metric-label">Carbon</div><div class="sw-metric-value blue" id="co2-rice">—</div></div>
+            </div>
+            <div class="sw-app-footer">
+              <button class="sw-expand-btn" onclick="toggleExpand('det-rice',this)"><i data-lucide="chevron-down"></i> Details</button>
+              <label class="sw-toggle"><input type="checkbox" id="tog-rice" checked onchange="toggleAppliance('rice',this)"><div class="sw-toggle-track"></div><div class="sw-toggle-thumb"></div></label>
+            </div>
+            <div class="sw-expanded" id="det-rice">
+              <div class="sw-detail"><span class="sw-detail-label">Baseline</span><span class="sw-detail-value">—</span></div>
+              <div class="sw-detail"><span class="sw-detail-label">Threshold (learned ×1.20)</span><span class="sw-detail-value" id="thr-rice">—</span></div>
+              <div class="sw-detail"><span class="sw-detail-label">Deviation</span><span class="sw-detail-value" id="dev-rice">—</span></div>
+              <div class="sw-detail"><span class="sw-detail-label">Relay</span><span class="sw-detail-value" id="shut-rice" style="color:var(--sw-green)">STANDBY</span></div>
+            </div>
+          </div>
+          <!-- CH2 — no sensor connected -->
+          <div class="sw-appliance-card ch2" id="card-tv">
+            <div class="sw-app-head">
+              <div class="sw-app-ident">
+                <div class="sw-app-icon ch2"><i data-lucide="tv"></i></div>
+                <div><div class="sw-app-name">Channel 2</div><div class="sw-app-ch">CH 2 · no sensor connected</div></div>
+              </div>
+              <span class="sw-badge sw-badge-normal" id="status-tv"><span class="sw-dot pulse"></span>NORMAL</span>
+            </div>
+            <div class="sw-watt-section">
+              <div class="sw-watt-label">Power Draw</div>
+              <div class="sw-watt-num" id="w-tv">—<span class="sw-watt-unit">W</span></div>
+            </div>
+            <div class="sw-metrics">
+              <div><div class="sw-metric-label">Voltage</div><div class="sw-metric-value" id="v-tv">—</div></div>
+              <div><div class="sw-metric-label">Current</div><div class="sw-metric-value" id="a-tv">—</div></div>
+              <div><div class="sw-metric-label">Energy</div><div class="sw-metric-value" id="e-tv">—</div></div>
+              <div><div class="sw-metric-label">Cost</div><div class="sw-metric-value green" id="c-tv">—</div></div>
+              <div><div class="sw-metric-label">Carbon</div><div class="sw-metric-value blue" id="co2-tv">—</div></div>
+            </div>
+            <div class="sw-app-footer">
+              <button class="sw-expand-btn" onclick="toggleExpand('det-tv',this)"><i data-lucide="chevron-down"></i> Details</button>
+              <label class="sw-toggle"><input type="checkbox" id="tog-tv" checked onchange="toggleAppliance('tv',this)"><div class="sw-toggle-track"></div><div class="sw-toggle-thumb"></div></label>
+            </div>
+            <div class="sw-expanded" id="det-tv">
+              <div class="sw-detail"><span class="sw-detail-label">Baseline</span><span class="sw-detail-value">140 W</span></div>
+              <div class="sw-detail"><span class="sw-detail-label">Threshold (+20%)</span><span class="sw-detail-value">168 W</span></div>
+              <div class="sw-detail"><span class="sw-detail-label">Deviation</span><span class="sw-detail-value" id="dev-tv">—</span></div>
+              <div class="sw-detail"><span class="sw-detail-label">Relay</span><span class="sw-detail-value" style="color:var(--sw-green)">STANDBY</span></div>
+            </div>
+          </div>
+          <!-- CH3 — no sensor connected -->
+          <div class="sw-appliance-card ch3" id="card-charger">
+            <div class="sw-app-head">
+              <div class="sw-app-ident">
+                <div class="sw-app-icon ch3"><i data-lucide="plug-zap"></i></div>
+                <div><div class="sw-app-name">Channel 3</div><div class="sw-app-ch">CH 3 · no sensor connected</div></div>
+              </div>
+              <span class="sw-badge sw-badge-normal" id="status-charger"><span class="sw-dot pulse"></span>NORMAL</span>
+            </div>
+            <div class="sw-watt-section">
+              <div class="sw-watt-label">Power Draw</div>
+              <div class="sw-watt-num" id="w-charger">—<span class="sw-watt-unit">W</span></div>
+            </div>
+            <div class="sw-metrics">
+              <div><div class="sw-metric-label">Voltage</div><div class="sw-metric-value" id="v-charger">—</div></div>
+              <div><div class="sw-metric-label">Current</div><div class="sw-metric-value" id="a-charger">—</div></div>
+              <div><div class="sw-metric-label">Energy</div><div class="sw-metric-value" id="e-charger">—</div></div>
+              <div><div class="sw-metric-label">Cost</div><div class="sw-metric-value green" id="c-charger">—</div></div>
+              <div><div class="sw-metric-label">Carbon</div><div class="sw-metric-value blue" id="co2-charger">—</div></div>
+            </div>
+            <div class="sw-app-footer">
+              <button class="sw-expand-btn" onclick="toggleExpand('det-charger',this)"><i data-lucide="chevron-down"></i> Details</button>
+              <label class="sw-toggle"><input type="checkbox" id="tog-charger" checked onchange="toggleAppliance('charger',this)"><div class="sw-toggle-track"></div><div class="sw-toggle-thumb"></div></label>
+            </div>
+            <div class="sw-expanded" id="det-charger">
+              <div class="sw-detail"><span class="sw-detail-label">Baseline</span><span class="sw-detail-value">17 W</span></div>
+              <div class="sw-detail"><span class="sw-detail-label">Threshold (+20%)</span><span class="sw-detail-value">20.4 W</span></div>
+              <div class="sw-detail"><span class="sw-detail-label">Deviation</span><span class="sw-detail-value" id="dev-charger">—</span></div>
+              <div class="sw-detail"><span class="sw-detail-label">Relay</span><span class="sw-detail-value" style="color:var(--sw-green)">STANDBY</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sw-grid-chart mb-12" style="display:grid;grid-template-columns:1fr 280px;gap:12px;">
+          <div class="sw-chart-card">
+            <div class="sw-chart-title">Real-Time Power Draw</div>
+            <div class="sw-chart-sub">Live wattage per channel — updates every 5 seconds</div>
+            <div class="sw-chart-legend">
+              <div class="sw-legend-item"><div class="sw-legend-dot" style="background:#f97316"></div>Iron</div>
+              <div class="sw-legend-item"><div class="sw-legend-dot" style="background:#2563eb"></div>Channel 2</div>
+              <div class="sw-legend-item"><div class="sw-legend-dot" style="background:#16a34a"></div>Channel 3</div>
+            </div>
+            <canvas id="wattChart" height="90"></canvas>
+          </div>
+          <div class="sw-card">
+            <div class="sw-card-header"><span class="sw-card-title">Session Totals</span></div>
+            <div style="padding:10px 14px;display:flex;flex-direction:column;gap:8px;">
+              <div class="sw-stat" style="border:none;padding:8px 0;">
+                <div class="sw-stat-label">Total Energy</div>
+                <div class="sw-stat-value" id="tot-energy">—</div>
+                <div class="sw-stat-sub">kWh accumulated</div>
+              </div>
+              <div style="border-top:1px solid #f3f4f6;padding-top:8px;">
+                <div class="sw-stat-label">Estimated Cost</div>
+                <div class="sw-stat-value green" id="tot-cost">—</div>
+                <div class="sw-stat-sub">₱ @ 11.51/kWh</div>
+              </div>
+              <div style="border-top:1px solid #f3f4f6;padding-top:8px;">
+                <div class="sw-stat-label">Carbon Emitted</div>
+                <div class="sw-stat-value blue" id="tot-carbon">—</div>
+                <div class="sw-stat-sub">kg CO₂ equivalent</div>
+              </div>
+              <div style="border-top:1px solid #f3f4f6;padding-top:8px;">
+                <div class="sw-meta"><span class="sw-meta-lbl">Anomalies</span><span class="sw-meta-val" style="color:var(--sw-red)" id="anom-today">0</span></div>
+                <div class="sw-meta"><span class="sw-meta-lbl">Source</span><span class="sw-meta-val" style="font-size:10px" id="tot-source">Connecting...</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sw-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="sw-card">
+            <div class="sw-card-header">
+              <span class="sw-card-title">Manual Control</span>
+              <span style="font-size:10px;color:#9ca3af;">Relay control — requires API key</span>
+            </div>
+            <div style="padding:10px 12px;">
+              <div class="sw-control-row" id="ctrl-rice">
+                <div class="sw-control-info">
+                  <div class="sw-control-icon ch1"><i data-lucide="utensils"></i></div>
+                  <div><div class="sw-control-name">Iron</div><div class="sw-control-watt" id="cwatt-rice">— W</div></div>
+                </div>
+                <label class="sw-toggle"><input type="checkbox" id="ctog-rice" checked onchange="toggleAppliance('rice',this)"><div class="sw-toggle-track"></div><div class="sw-toggle-thumb"></div></label>
+              </div>
+              <div class="sw-control-row" id="ctrl-tv">
+                <div class="sw-control-info">
+                  <div class="sw-control-icon ch2"><i data-lucide="tv"></i></div>
+                  <div><div class="sw-control-name">Channel 2</div><div class="sw-control-watt" id="cwatt-tv">— W</div></div>
+                </div>
+                <label class="sw-toggle"><input type="checkbox" id="ctog-tv" checked onchange="toggleAppliance('tv',this)"><div class="sw-toggle-track"></div><div class="sw-toggle-thumb"></div></label>
+              </div>
+              <div class="sw-control-row" id="ctrl-charger">
+                <div class="sw-control-info">
+                  <div class="sw-control-icon ch3"><i data-lucide="plug-zap"></i></div>
+                  <div><div class="sw-control-name">Channel 3</div><div class="sw-control-watt" id="cwatt-charger">— W</div></div>
+                </div>
+                <label class="sw-toggle"><input type="checkbox" id="ctog-charger" checked onchange="toggleAppliance('charger',this)"><div class="sw-toggle-track"></div><div class="sw-toggle-thumb"></div></label>
+              </div>
+            </div>
+          </div>
+          <div class="sw-card">
+            <div class="sw-card-header">
+              <span class="sw-card-title">Recent Anomalies</span>
+              <a href="#" onclick="showView('anomaly')" style="font-size:10px;color:var(--sw-orange);text-decoration:none;">View all →</a>
+            </div>
+            <div style="padding:8px 14px;" id="anomaly-feed">
+              <div class="sw-empty">No anomalies detected yet.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRAPHS VIEW -->
+    <div class="sw-view" id="view-graphs">
+      <div class="page-body">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#111827;">Energy Graphs</div>
+            <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Visual analytics — all channels</div>
+          </div>
+          <div style="display:flex;gap:4px;">
+            <button class="sw-tab active" onclick="setTF(this)" style="font-size:10px;padding:4px 10px;border:1px solid #d1d5db;border-radius:5px;background:#fff;">24h</button>
+            <button class="sw-tab" onclick="setTF(this)" style="font-size:10px;padding:4px 10px;border:1px solid #d1d5db;border-radius:5px;background:#fff;">7d</button>
+            <button class="sw-tab" onclick="setTF(this)" style="font-size:10px;padding:4px 10px;border:1px solid #d1d5db;border-radius:5px;background:#fff;">30d</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:12px;margin-bottom:12px;">
+          <div class="sw-chart-card">
+            <div class="sw-chart-title">Real-Time Wattage</div>
+            <div class="sw-chart-sub">Live power draw per channel (W)</div>
+            <div class="sw-chart-legend">
+              <div class="sw-legend-item"><div class="sw-legend-dot" style="background:#f97316"></div>Iron</div>
+              <div class="sw-legend-item"><div class="sw-legend-dot" style="background:#2563eb"></div>Channel 2</div>
+              <div class="sw-legend-item"><div class="sw-legend-dot" style="background:#16a34a"></div>Channel 3</div>
+            </div>
+            <canvas id="wattChart2" height="110"></canvas>
+          </div>
+          <div class="sw-chart-card">
+            <div class="sw-chart-title">Uptime Hours</div>
+            <div class="sw-chart-sub">Monitoring time per channel (hrs)</div>
+            <canvas id="runtimeChart" height="110"></canvas>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="sw-chart-card">
+            <div class="sw-chart-title">Cost Accumulation</div>
+            <div class="sw-chart-sub">Estimated ₱ (VECO 11.51/kWh)</div>
+            <canvas id="costChart" height="110"></canvas>
+          </div>
+          <div class="sw-chart-card">
+            <div class="sw-chart-title">Carbon Emissions</div>
+            <div class="sw-chart-sub">kg CO₂ (PH grid 0.6 kg/kWh)</div>
+            <canvas id="carbonChart" height="110"></canvas>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
+          <div class="sw-chart-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px;">
+              <div>
+                <div class="sw-chart-title">Daily Uptime Hours</div>
+                <div class="sw-chart-sub" id="daily-chart-sub">Monitoring hours per appliance per day</div>
+              </div>
+            </div>
+            <div class="sw-chart-legend">
+              <div class="sw-legend-item"><div class="sw-legend-dot" style="background:#f97316"></div>Iron</div>
+              <div class="sw-legend-item"><div class="sw-legend-dot" style="background:#2563eb"></div>Channel 2</div>
+              <div class="sw-legend-item"><div class="sw-legend-dot" style="background:#16a34a"></div>Channel 3</div>
+            </div>
+            <canvas id="dailyChart" height="80"></canvas>
+          </div>
+          <div class="sw-chart-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px;">
+              <div>
+                <div class="sw-chart-title">Daily Energy</div>
+                <div class="sw-chart-sub" id="daily-energy-chart-sub">kWh per appliance per day</div>
+              </div>
+            </div>
+            <div class="sw-chart-legend">
+              <div class="sw-legend-item"><div class="sw-legend-dot" style="background:#f97316"></div>Iron</div>
+              <div class="sw-legend-item"><div class="sw-legend-dot" style="background:#2563eb"></div>Channel 2</div>
+              <div class="sw-legend-item"><div class="sw-legend-dot" style="background:#16a34a"></div>Channel 3</div>
+            </div>
+            <canvas id="dailyEnergyChart" height="80"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- [VIEW-HISTORY-START] -->
+    <!-- HISTORY VIEW -->
+    <div class="sw-view" id="view-history">
+      <div class="page-body">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#111827;">Consumption History</div>
+            <div style="font-size:11px;color:#9ca3af;margin-top:2px;" id="history-count">Loading from database...</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span id="hist-query-time" style="font-size:10px;color:#9ca3af;font-family:var(--font-data);"></span>
+            <button class="btn-sw-refresh" onclick="exportHistoryCSV()"><i data-lucide="download"></i> Export CSV</button>
+            <button class="btn-sw-refresh" onclick="fetchHistory()"><i data-lucide="refresh-cw"></i> Refresh</button>
+          </div>
+        </div>
+        <div class="sw-hfilter-bar mb-12">
+          <button class="sw-hfilter-btn active" onclick="applyHistoryFilter('today',this)">Today</button>
+          <button class="sw-hfilter-btn" onclick="applyHistoryFilter('specific-day',this)">Specific Day</button>
+          <button class="sw-hfilter-btn" onclick="applyHistoryFilter('this-week',this)">This Week</button>
+          <button class="sw-hfilter-btn" onclick="applyHistoryFilter('specific-week',this)">Specific Week</button>
+          <button class="sw-hfilter-btn" onclick="applyHistoryFilter('this-month',this)">This Month</button>
+          <div id="hist-date-wrap" style="display:none;margin-left:4px;">
+            <input type="date" id="hist-date-input" class="sw-date-input" onchange="applyHistoryFilter(currentHistoryMode)">
+          </div>
+          <div id="hist-week-wrap" style="display:none;margin-left:4px;">
+            <input type="week" id="hist-week-input" class="sw-date-input" onchange="applyHistoryFilter(currentHistoryMode)">
+          </div>
+        </div>
+        <div class="sw-hstat-grid mb-12">
+          <div class="sw-hstat">
+            <div class="sw-hstat-lbl">Iron</div>
+            <div class="sw-hstat-val" id="hstat-rice">—</div>
+            <div class="sw-hstat-sub">readings</div>
+          </div>
+          <div class="sw-hstat">
+            <div class="sw-hstat-lbl">Channel 2</div>
+            <div class="sw-hstat-val" id="hstat-tv">—</div>
+            <div class="sw-hstat-sub">readings</div>
+          </div>
+          <div class="sw-hstat">
+            <div class="sw-hstat-lbl">Channel 3</div>
+            <div class="sw-hstat-val" id="hstat-charger">—</div>
+            <div class="sw-hstat-sub">readings</div>
+          </div>
+          <div class="sw-hstat">
+            <div class="sw-hstat-lbl">Max Expected</div>
+            <div class="sw-hstat-val" id="hstat-expected">—</div>
+            <div class="sw-hstat-sub">full period</div>
+          </div>
+          <div class="sw-hstat">
+            <div class="sw-hstat-lbl">Completeness — Q1.1.1</div>
+            <div class="sw-hstat-val" id="hstat-pct" style="color:var(--sw-green)">—</div>
+            <div class="sw-hstat-sub">actual ÷ max expected</div>
+            <div class="sw-completeness-bar"><div class="sw-completeness-fill" id="hstat-bar"></div></div>
+          </div>
+          <div class="sw-hstat">
+            <div class="sw-hstat-lbl">Recording Rate</div>
+            <div class="sw-hstat-val" id="hstat-rate" style="color:var(--sw-blue)">—</div>
+            <div class="sw-hstat-sub">actual ÷ elapsed</div>
+          </div>
+        </div>
+        <div class="sw-card" style="overflow:hidden;">
+          <table class="sw-table">
+            <thead><tr><th>Timestamp</th><th>Channel</th><th>Voltage</th><th>Current</th><th>Power</th><th>Energy</th><th>Cost</th><th>Carbon</th></tr></thead>
+            <tbody id="history-tbody"><tr><td colspan="8" class="sw-empty">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- [VIEW-HISTORY-END] -->
+
+    <!-- [VIEW-ANOMALY-START] -->
+    <!-- ANOMALY VIEW -->
+    <div class="sw-view" id="view-anomaly">
+      <div class="page-body">
+        <div style="margin-bottom:14px;">
+          <div style="font-size:13px;font-weight:600;color:#111827;">Anomaly Detection Log</div>
+          <div style="font-size:11px;color:#9ca3af;margin-top:2px;">All wattage anomalies and relay responses</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
+          <div class="sw-astat"><div class="sw-astat-lbl">Total Detected</div><div class="sw-astat-val red" id="astat-total">0</div></div>
+          <div class="sw-astat"><div class="sw-astat-lbl">Auto Shutdowns</div><div class="sw-astat-val orange" id="astat-shutdowns">0</div></div>
+          <div class="sw-astat"><div class="sw-astat-lbl">Avg Response</div><div class="sw-astat-val blue" id="astat-avg">—</div></div>
+          <div class="sw-astat"><div class="sw-astat-lbl">False Alarms</div><div class="sw-astat-val orange" id="astat-false">—</div><div style="font-size:9px;color:#9ca3af;margin-top:3px;">manual log</div></div>
+        </div>
+        <div class="sw-card" style="overflow:hidden;">
+          <table class="sw-table">
+            <thead><tr><th>Timestamp</th><th>Channel</th><th>Detected</th><th>Threshold</th><th>Deviation</th><th>Response</th><th>Action</th></tr></thead>
+            <tbody id="anomaly-tbody"><tr><td colspan="7" class="sw-empty">No anomalies detected yet.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUMMARY VIEW -->
+    <div class="sw-view" id="view-summary">
+      <div class="page-body">
+        <div style="margin-bottom:14px;">
+          <div style="font-size:13px;font-weight:600;color:#111827;">Performance Summary</div>
+          <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Cumulative totals from database</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;">
+          <div class="sw-sum-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+              <div><div class="sw-sum-name">Iron</div><div class="sw-sum-ch">Channel 1</div></div>
+              <div class="sw-app-icon ch1" style="width:28px;height:28px;"><i data-lucide="utensils"></i></div>
+            </div>
+            <div class="sw-sum-row"><span class="sw-sum-lbl">Total Energy</span><span class="sw-sum-val" id="sum-e-rice">—</span></div>
+            <div class="sw-sum-row"><span class="sw-sum-lbl">Total Cost</span><span class="sw-sum-val green" id="sum-c-rice">—</span></div>
+            <div class="sw-sum-row"><span class="sw-sum-lbl">Carbon</span><span class="sw-sum-val blue" id="sum-co2-rice">—</span></div>
+            <div class="sw-sum-row"><span class="sw-sum-lbl">Avg Daily Energy</span><span class="sw-sum-val" id="sum-avg-rice">—</span></div>
+            <div class="sw-sum-row"><span class="sw-sum-lbl">Anomalies</span><span class="sw-sum-val" style="color:var(--sw-red)" id="sum-anom-rice">—</span></div>
+            <div class="sw-sum-row"><span class="sw-sum-lbl">Readings</span><span class="sw-sum-val" id="sum-n-rice">—</span></div>
+          </div>
+          <div class="sw-sum-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+              <div><div class="sw-sum-name">Channel 2</div><div class="sw-sum-ch">Channel 2</div></div>
+              <div class="sw-app-icon ch2" style="width:28px;height:28px;"><i data-lucide="tv"></i></div>
+            </div>
+            <div class="sw-sum-row"><span class="sw-sum-lbl">Total Energy</span><span class="sw-sum-val" id="sum-e-tv">—</span></div>
+            <div class="sw-sum-row"><span class="sw-sum-lbl">Total Cost</span><span class="sw-sum-val green" id="sum-c-tv">—</span></div>
+            <div class="sw-sum-row"><span class="sw-sum-lbl">Carbon</span><span class="sw-sum-val blue" id="sum-co2-tv">—</span></div>
+            <div class="sw-sum-row"><span class="sw-sum-lbl">Avg Daily Energy</span><span class="sw-sum-val" id="sum-avg-tv">—</span></div>
+            <div class="sw-sum-row"><span class="sw-sum-lbl">Anomalies</span><span class="sw-sum-val" style="color:var(--sw-red)" id="sum-anom-tv">—</span></div>
+            <div class="sw-sum-row"><span class="sw-sum-lbl">Readings</span><span class="sw-sum-val" id="sum-n-tv">—</span></div>
+          </div>
+          <div class="sw-sum-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+              <div><div class="sw-sum-name">Channel 3</div><div class="sw-sum-ch">Channel 3</div></div>
+              <div class="sw-app-icon ch3" style="width:28px;height:28px;"><i data-lucide="plug-zap"></i></div>
+            </div>
+            <div class="sw-sum-row"><span class="sw-sum-lbl">Total Energy</span><span class="sw-sum-val" id="sum-e-charger">—</span></div>
+            <div class="sw-sum-row"><span class="sw-sum-lbl">Total Cost</span><span class="sw-sum-val green" id="sum-c-charger">—</span></div>
+            <div class="sw-sum-row"><span class="sw-sum-lbl">Carbon</span><span class="sw-sum-val blue" id="sum-co2-charger">—</span></div>
+            <div class="sw-sum-row"><span class="sw-sum-lbl">Avg Daily Energy</span><span class="sw-sum-val" id="sum-avg-charger">—</span></div>
+            <div class="sw-sum-row"><span class="sw-sum-lbl">Anomalies</span><span class="sw-sum-val" style="color:var(--sw-red)" id="sum-anom-charger">—</span></div>
+            <div class="sw-sum-row"><span class="sw-sum-lbl">Readings</span><span class="sw-sum-val" id="sum-n-charger">—</span></div>
+          </div>
+        </div>
+        <div class="sw-grand mb-12">
+          <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:14px;font-weight:600;">Grand Total — All Channels</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
+            <div><div class="sw-grand-lbl">Total Energy</div><div class="sw-grand-val" id="gt-energy">—</div></div>
+            <div><div class="sw-grand-lbl">Total Cost</div><div class="sw-grand-val green" id="gt-cost">—</div></div>
+            <div><div class="sw-grand-lbl">Carbon</div><div class="sw-grand-val blue" id="gt-carbon">—</div></div>
+            <div><div class="sw-grand-lbl">Total Readings</div><div class="sw-grand-val" id="gt-readings">—</div></div>
+          </div>
+        </div>
+        <div class="sw-card" style="padding:16px;">
+          <div style="font-size:12px;font-weight:600;color:#111827;margin-bottom:2px;">Monthly Projections</div>
+          <div style="font-size:10px;color:#9ca3af;margin-bottom:12px;">Extrapolated from current accumulation rate</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+            <div class="sw-proj-item"><div class="sw-proj-lbl">Energy</div><div class="sw-proj-val" id="proj-kwh">—</div><div class="sw-proj-sub">kWh/month</div></div>
+            <div class="sw-proj-item"><div class="sw-proj-lbl">Cost</div><div class="sw-proj-val green" id="proj-cost">—</div><div class="sw-proj-sub">₱/month</div></div>
+            <div class="sw-proj-item"><div class="sw-proj-lbl">Carbon</div><div class="sw-proj-val blue" id="proj-carbon">—</div><div class="sw-proj-sub">kg CO₂/month</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- [VIEW-STATUS-START] -->
+    <!-- STATUS VIEW -->
+    <div class="sw-view" id="view-status">
+      <div class="page-body">
+        <div style="margin-bottom:14px;">
+          <div style="font-size:13px;font-weight:600;color:#111827;">System Status</div>
+          <div style="font-size:11px;color:#9ca3af;margin-top:2px;">ESP32 uptime, recording gaps, and completeness — Q1.1.1</div>
+        </div>
+        <!-- Section 1: Live System Status -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
+          <div class="sw-astat">
+            <div class="sw-astat-lbl">ESP32 Status</div>
+            <div style="margin-top:8px;"><span class="sw-badge sw-badge-sim" id="st-esp32-badge"><span class="sw-dot pulse"></span><span id="st-esp32-status">—</span></span></div>
+          </div>
+          <div class="sw-astat">
+            <div class="sw-astat-lbl">Last Seen</div>
+            <div style="font-size:11px;font-weight:600;font-family:var(--font-data);color:#374151;margin-top:6px;line-height:1.4;" id="st-last-seen">—</div>
+          </div>
+          <div class="sw-astat">
+            <div class="sw-astat-lbl">Uptime Streak</div>
+            <div class="sw-astat-val green" id="st-uptime-streak">—</div>
+          </div>
+          <div class="sw-astat">
+            <div class="sw-astat-lbl">Total Monitoring</div>
+            <div class="sw-astat-val blue" id="st-total-hours">—</div>
+          </div>
+        </div>
+        <!-- Section 2: Gap Detection -->
+        <div class="sw-card" style="margin-bottom:14px;overflow:hidden;">
+          <div class="sw-card-header">
+            <span class="sw-card-title">Recording Gaps</span>
+            <div style="display:flex;gap:14px;align-items:center;">
+              <div style="display:flex;gap:8px;font-size:9px;color:#9ca3af;">
+                <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:#9ca3af;display:inline-block;"></span>MINOR 10–20s</span>
+                <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:#f97316;display:inline-block;"></span>SHORT 20s–5m</span>
+                <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:#dc2626;display:inline-block;"></span>LONG &gt;5m</span>
+              </div>
+              <div style="display:flex;gap:14px;font-size:10px;color:#9ca3af;">
+                <span>Today: <strong id="st-gaps-today" style="color:#374151;">—</strong></span>
+                <span>This week: <strong id="st-gaps-week" style="color:#374151;">—</strong></span>
+                <span>Total: <strong id="st-gaps-total" style="color:#374151;">—</strong></span>
+              </div>
+            </div>
+          </div>
+          <table class="sw-table">
+            <thead><tr><th>Gap Start</th><th>Gap End</th><th>Duration</th><th>Severity</th></tr></thead>
+            <tbody id="st-gap-tbody"><tr><td colspan="4" class="sw-empty">Loading...</td></tr></tbody>
+          </table>
+        </div>
+        <!-- Section 3: Daily Uptime Grid -->
+        <div class="sw-card" style="margin-bottom:14px;padding:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <div>
+              <div style="font-size:11px;font-weight:600;color:#374151;">Daily Uptime Calendar</div>
+              <div style="font-size:10px;color:#9ca3af;margin-top:2px;" id="st-cal-days">—</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:9px;color:#9ca3af;">
+              <span style="display:flex;align-items:center;gap:3px;"><span style="width:10px;height:10px;border-radius:2px;background:#16a34a;display:inline-block;"></span>≥95%</span>
+              <span style="display:flex;align-items:center;gap:3px;"><span style="width:10px;height:10px;border-radius:2px;background:#f97316;display:inline-block;"></span>50–94%</span>
+              <span style="display:flex;align-items:center;gap:3px;"><span style="width:10px;height:10px;border-radius:2px;background:#dc2626;display:inline-block;"></span>&lt;50%</span>
+              <span style="display:flex;align-items:center;gap:3px;"><span style="width:10px;height:10px;border-radius:2px;background:#e5e7eb;display:inline-block;"></span>No data</span>
+            </div>
+          </div>
+          <div id="st-cal-grid" style="display:flex;flex-wrap:wrap;gap:3px;"></div>
+          <div style="font-size:9px;color:#9ca3af;margin-top:8px;font-family:var(--font-ui);">Click any day to filter the History tab to that day.</div>
+        </div>
+        <!-- Section 4: Completeness Summary -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+          <div class="sw-astat"><div class="sw-astat-lbl">Today</div><div class="sw-astat-val" id="st-comp-today">—</div></div>
+          <div class="sw-astat"><div class="sw-astat-lbl">This Week</div><div class="sw-astat-val" id="st-comp-week">—</div></div>
+          <div class="sw-astat"><div class="sw-astat-lbl">This Month</div><div class="sw-astat-val" id="st-comp-month">—</div></div>
+          <div class="sw-astat"><div class="sw-astat-lbl">All-Time</div><div class="sw-astat-val" id="st-comp-alltime">—</div></div>
+        </div>
+      </div>
+    </div>
+    <!-- [VIEW-STATUS-END] -->
+  </div>
+</div>
+
+<script>
+// ===== CONFIG =====
+// [JS-CONFIG-START] so dashboard works from any device on the network
+const BACKEND = window.location.hostname === 'safewatt.serveousercontent.com'
+  ? 'https://safewatt.serveousercontent.com'
+  : 'http://192.168.1.58:3000';
+const VECO          = 11.51;
+const CARBON_FACTOR = 0.6;
+const POLL_MS       = 5000;
+const ESP32_INTERVAL_S = 7; // Session 21: ESP32 firmware sends every 7s (was 5s pre-Session 19) — used for completeness math
+const channelMap    = { rice_cooker:'rice', tv:'tv', phone_charger:'charger' };
+const baselines     = { rice:980, tv:140, charger:17 };
+let isLive = false, alertCount = 0, apiKey = '';
+let allReadings = [], currentHistoryMode = 'today';
+let allAnomalies = [], graphsTF = '24h';
+let lastHistoryFetch = null; // ISO timestamp of last full/incremental fetch
+let lastFetchedMaxId = 0; // highest row id in allReadings — used for incremental refresh
+let statusDailyStatsCache = null, statusDailyStatsKey = '';
+const HISTORY_PAGE_SIZE = 100;
+const HISTORY_MAX_LOCAL_ROWS = 40000; // v20: cap on allReadings growth — sized to cover ~24h at 3 ch × 7s = ~37k rows/day, so Graphs 24h view never gets clipped by the cap. Was 10,000 in v19 (~6.5h coverage).
+let historyPage = 0, currentFiltered = [];
+let pollInFlight = false; // v19: guard against concurrent poll() calls
+const DEMO_MODE = new URLSearchParams(window.location.search).has('demo'); // v19: ?demo enables sim button
+
+const simState = {
+  rice:    { watt:982, volt:221.3, amp:4.44, energy:3.12, cost:35.91, carbon:1.87, baseline:980 },
+  tv:      { watt:141, volt:220.7, amp:0.64, energy:0.71, cost:8.17,  carbon:0.43, baseline:140 },
+  charger: { watt:18,  volt:220.1, amp:0.08, energy:0.03, cost:0.35,  carbon:0.02, baseline:17  }
+};
+
+// ===== NAV =====
+let historyLoaded = false, anomalyLoaded = false;
+function showView(name, el) {
+  document.querySelectorAll('.sw-view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.sw-navtab, .sw-mobile-navitem').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelectorAll('.sw-navtab, .sw-mobile-navitem').forEach(n => {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+name+"'")) n.classList.add('active');
+  });
+  if (name === 'history' && !historyLoaded) { fetchHistory(); historyLoaded = true; }
+  if (name === 'anomaly' && !anomalyLoaded) { fetchAnomalies(); anomalyLoaded = true; }
+  if (name === 'status') { if (!historyLoaded) { fetchHistory(); historyLoaded = true; } renderStatus(); }
+  if (name === 'graphs' && wattChart2) { wattChart2.update('none'); if (allReadings.length) buildDailyChart(); }
+}
+function toggleMobileMenu() { document.getElementById('mobile-menu').classList.toggle('open'); }
+function toggleExpand(id, btn) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+  const icon = btn.querySelector('i');
+  if (icon) { icon.setAttribute('data-lucide', el.classList.contains('open') ? 'chevron-up' : 'chevron-down'); lucide.createIcons(); }
+}
+// v24: the DB stores legacy channel identifiers (rice_cooker / tv / phone_charger).
+// History and Anomaly tables were rendering those raw keys, so the figures disagreed
+// with the appliance names used everywhere else in the interface and in the paper.
+const DISPLAY_NAME = { rice_cooker: 'Iron', tv: 'Channel 2', phone_charger: 'Channel 3' };
+function displayName(key){ return DISPLAY_NAME[key] || (key||'').replace(/_/g,' '); }
+
+function toggleAppliance(name, cb) {
+  const card = document.getElementById('card-' + name);
+  const ctrl = document.getElementById('ctrl-' + name);
+  const statusEl = document.getElementById('status-' + name);
+  if (!cb.checked) {
+    card.classList.add('offline'); if (ctrl) ctrl.classList.add('offline');
+    document.getElementById('w-' + name).innerHTML = '0<span class="sw-watt-unit">W</span>';
+    statusEl.innerHTML = '<span class="sw-dot"></span>OFF';
+    statusEl.className = 'sw-badge sw-badge-offline';
+  } else {
+    card.classList.remove('offline'); if (ctrl) ctrl.classList.remove('offline');
+    statusEl.innerHTML = '<span class="sw-dot pulse"></span>NORMAL';
+    statusEl.className = 'sw-badge sw-badge-normal';
+  }
+  const action = cb.checked ? 'on' : 'off';
+  const channelNum = name==='rice' ? 1 : name==='tv' ? 2 : 3;
+  showNotif(cb.checked ? name+' turned ON.' : name+' turned OFF.', false);
+  // v21 (Session 32): removed two client-side gates that silently swallowed relay commands.
+  //  1. `if (!isLive) return;` — the card flipped to OFF visually while nothing was sent.
+  //  2. `if (!apiKey) { promptApiKey(...); return; }` — the backend's requireAuth already
+  //     bypasses auth for any 192.168.x.x / localhost caller, so on the LAN no key is needed
+  //     at all. The prompt also resets on every page reload and is easy to miss in fullscreen,
+  //     which is exactly how it presented: toggle appears to work, relay never moves.
+  // Now: always send. sendRelayCommand() prompts for a key only if the backend returns 401,
+  // which can only happen from off-LAN.
+  suppressSyncUntil = Date.now() + 6000; // let the command reach the ESP32 before re-syncing
+  sendRelayCommand(channelNum, action);
+}
+
+function sendRelayCommand(channel, action) {
+  const headers = { 'Content-Type': 'application/json' };
+  // Only attach a key if we actually have one. On the LAN the backend bypasses auth entirely,
+  // so sending 'Bearer ' with an empty key was pointless; the real gate was the client-side
+  // check that used to sit in toggleAppliance() (see v21 note there).
+  if (apiKey) headers['Authorization'] = 'Bearer ' + apiKey;
+  fetch(BACKEND + '/api/relay', {
+    method: 'POST',
+    headers: headers,
+    body: JSON.stringify({ channel: channel, action: action })
+  })
+  .then(function(r) {
+    if (r.status === 401) {
+      // Off-LAN only. Ask for a key, then retry the same command once.
+      apiKey = '';
+      promptApiKey(function() { sendRelayCommand(channel, action); });
+      return;
+    }
+    if (!r.ok) { showNotif('Relay command failed (HTTP ' + r.status + ').', true); return; }
+    showNotif('Relay command sent — ch' + channel + ' ' + action + '.', false);
+  })
+  .catch(function() { showNotif('Relay command failed — backend unreachable.', true); });
+}
+
+function promptApiKey(callback) {
+  const key = window.prompt('Enter API key to send relay commands:');
+  if (key) { apiKey = key.trim(); if (callback) callback(); }
+}
+function setTF(btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.style.background = '#fff');
+  btn.style.background = '#f3f4f6';
+  graphsTF = btn.textContent.trim();
+  if (allReadings.length) buildDailyChart();
+}
+
+// Helper to safely set textContent (avoids null reference crashes)
+function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+
+// ===== BACKEND =====
+// [JS-FETCH-START]
+async function fetchLatestReadings() {
+  try {
+    const res = await fetch(BACKEND + '/api/readings/latest');
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    if (!data || !data.length) return null;
+    const latest = {};
+    data.forEach(row => { latest[row.appliance] = row; });
+    return latest;
+  } catch { return null; }
+}
+
+async function fetchHistory() {
+  try {
+    const t0 = performance.now();
+    const res = await fetch(BACKEND + '/api/readings');
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    const t1 = performance.now();
+    setText('hist-query-time', 'Q1.3: ' + Math.round(t1-t0) + ' ms · ' + data.length + ' rows');
+    allReadings = data;
+    lastHistoryFetch = new Date().toISOString();
+    lastFetchedMaxId = data.length ? data[0].id : 0; // data is DESC so [0] is newest
+    updateSummary(data);
+    applyHistoryFilter(currentHistoryMode);
+    if (document.getElementById('view-status').classList.contains('active')) renderStatus();
+    if (document.getElementById('view-graphs').classList.contains('active')) buildDailyChart();
+  } catch {
+    document.getElementById('history-tbody').innerHTML = '<tr><td colspan="8" class="sw-empty">⚠ Cannot reach backend. Is server.js running?</td></tr>';
+    setText('history-count', 'Backend unreachable');
+  }
+}
+
+// Incremental refresh — fetches only rows with id > lastFetchedMaxId, no timezone issues
+async function fetchHistoryIncremental() {
+  if (!lastFetchedMaxId) { fetchHistory(); return; }
+  try {
+    const res = await fetch(BACKEND + '/api/readings/since-id/' + lastFetchedMaxId);
+    if (!res.ok) throw new Error();
+    const newRows = await res.json();
+    if (!newRows.length) return; // nothing new, skip re-render
+    lastFetchedMaxId = newRows[0].id; // newRows is DESC so [0] is highest id
+    allReadings = [...newRows, ...allReadings];
+    // v19: cap growth so a tab open for days doesn't accumulate hundreds of thousands of rows
+    if (allReadings.length > HISTORY_MAX_LOCAL_ROWS) allReadings = allReadings.slice(0, HISTORY_MAX_LOCAL_ROWS);
+    updateSummary(allReadings);
+    applyHistoryFilter(currentHistoryMode);
+    if (document.getElementById('view-status').classList.contains('active')) renderStatus();
+    if (document.getElementById('view-graphs').classList.contains('active')) buildDailyChart();
+  } catch { /* silent fail — full fetch available via manual refresh */ }
+}
+
+
+// v22 (Session 32): sync BOTH toggles with the ACTUAL relay state.
+// Previously each toggle tracked only its own clicks. An automatic over-wattage trip left the
+// switch showing ON while the relay was physically OPEN, and the appliance-card toggle and the
+// manual-control toggle could disagree with one another. State now comes from the backend,
+// derived from whichever happened most recently per channel: an anomaly trip (always OFF) or
+// an executed manual command. Setting .checked programmatically does NOT fire onchange, so
+// this never sends a spurious relay command back to the ESP32.
+// v23: after a user clicks a toggle, suppress state-sync briefly. The command sits as
+// pending until the ESP32 polls it, and without this the sync would read the pre-click
+// state and flip the switch back under the user, then flip again on execution.
+let suppressSyncUntil = 0;
+async function syncRelayState() {
+  if (Date.now() < suppressSyncUntil) return;
+  try {
+    const res = await fetch(BACKEND + '/api/relay/state');
+    if (!res.ok) return;
+    const st = await res.json();
+    const map = { rice: 'ch1', tv: 'ch2', charger: 'ch3' };
+    Object.keys(map).forEach(function (name) {
+      const entry = st[map[name]];
+      if (!entry) return;
+      const on = (entry.state === 'on');
+
+      const cardTog = document.getElementById('tog-' + name);
+      const ctrlTog = document.getElementById('ctog-' + name);
+      if (cardTog) cardTog.checked = on;
+      if (ctrlTog) ctrlTog.checked = on;
+
+      const card = document.getElementById('card-' + name);
+      const ctrl = document.getElementById('ctrl-' + name);
+      const statusEl = document.getElementById('status-' + name);
+      if (on) {
+        if (card) card.classList.remove('offline');
+        if (ctrl) ctrl.classList.remove('offline');
+        if (statusEl) {
+          statusEl.innerHTML = '<span class="sw-dot pulse"></span>NORMAL';
+          statusEl.className = 'sw-badge sw-badge-normal';
+        }
+      } else {
+        if (card) card.classList.add('offline');
+        if (ctrl) ctrl.classList.add('offline');
+        if (statusEl) {
+          // Distinguish an automatic safety trip from a deliberate manual switch-off.
+          const tripped = (entry.source === 'anomaly_trip');
+          statusEl.innerHTML = '<span class="sw-dot"></span>' + (tripped ? 'TRIPPED' : 'OFF');
+          statusEl.className = 'sw-badge sw-badge-offline';
+        }
+      }
+    });
+  } catch (e) { /* backend unreachable — leave toggles as they are */ }
+}
+
+async function fetchAnomalies() {
+  try {
+    const res = await fetch(BACKEND + '/api/anomalies');
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    renderAnomalies(data);
+    renderAnomalyFeed(data);
+  } catch {
+    document.getElementById('anomaly-tbody').innerHTML = '<tr><td colspan="7" class="sw-empty">⚠ Cannot reach backend.</td></tr>';
+  }
+}
+
+// [JS-RENDER-START]
+function renderHistory(data) {
+  allReadings = data;
+  updateSummary(data);
+  applyHistoryFilter(currentHistoryMode);
+}
+
+function renderHistoryTable(data) {
+  currentFiltered = data;
+  historyPage = 0;
+  renderHistoryPage();
+}
+
+function renderHistoryPage() {
+  const tbody = document.getElementById('history-tbody');
+  if (!currentFiltered.length) { tbody.innerHTML = '<tr><td colspan="8" class="sw-empty">No readings in this period.</td></tr>'; return; }
+  const start = historyPage * HISTORY_PAGE_SIZE;
+  const pageData = currentFiltered.slice(start, start + HISTORY_PAGE_SIZE);
+  tbody.innerHTML = '';
+  pageData.forEach(row => {
+    const ts = new Date(row.timestamp).toLocaleString('en-PH', { hour12:false });
+    const tagClass = row.appliance==='rice_cooker'?'sw-tag-rice':row.appliance==='tv'?'sw-tag-tv':'sw-tag-charger';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="color:#9ca3af">${ts}</td>
+      <td><span class="sw-tag ${tagClass}">${displayName(row.appliance)}</span></td>
+      <td>${row.voltage!=null?row.voltage.toFixed(1)+' V':'—'}</td>
+      <td>${row.current_a!=null?row.current_a.toFixed(2)+' A':'—'}</td>
+      <td style="font-weight:600">${row.power_w!=null?row.power_w.toFixed(1)+' W':'—'}</td>
+      <td>${row.energy_kwh!=null?row.energy_kwh.toFixed(4)+' kWh':'—'}</td>
+      <td style="color:var(--sw-green)">${row.cost_php!=null?'₱'+row.cost_php.toFixed(4):'—'}</td>
+      <td style="color:#0369a1">${row.carbon_kg!=null?row.carbon_kg.toFixed(4)+' kg':'—'}</td>`;
+    tbody.appendChild(tr);
+  });
+  if (currentFiltered.length > HISTORY_PAGE_SIZE) {
+    const end = Math.min(start + HISTORY_PAGE_SIZE, currentFiltered.length);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="8" style="text-align:center;padding:10px;font-size:11px;color:#9ca3af;font-family:var(--font-ui);">
+      Showing ${start+1}–${end} of ${currentFiltered.length} records &nbsp;
+      ${historyPage>0?`<button onclick="historyPage--;renderHistoryPage()" style="padding:3px 10px;border:1px solid #d1d5db;border-radius:5px;background:#fff;font-size:10px;cursor:pointer;font-family:var(--font-ui);">← Prev</button>`:''}
+      &nbsp;
+      ${end<currentFiltered.length?`<button onclick="historyPage++;renderHistoryPage()" style="padding:3px 10px;border:1px solid #d1d5db;border-radius:5px;background:#fff;font-size:10px;cursor:pointer;font-family:var(--font-ui);">Next →</button>`:''}
+    </td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+// ===== HISTORY FILTER =====
+function getDateRange(mode) {
+  const now = new Date();
+  let start, end = now;
+  if (mode === 'today') {
+    start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  } else if (mode === 'specific-day') {
+    const val = document.getElementById('hist-date-input').value;
+    if (!val) return null;
+    const [y,m,d] = val.split('-').map(Number);
+    start = new Date(y, m-1, d);
+    end   = new Date(y, m-1, d+1);
+  } else if (mode === 'this-week') {
+    const day = now.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    start = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diff);
+  } else if (mode === 'specific-week') {
+    const val = document.getElementById('hist-week-input').value;
+    if (!val) return null;
+    const [yr, wk] = val.split('-W').map(Number);
+    const jan4 = new Date(yr, 0, 4);
+    const mon = new Date(jan4);
+    mon.setDate(jan4.getDate() - (jan4.getDay()||7) + 1 + (wk-1)*7);
+    start = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate());
+    end   = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 7);
+  } else if (mode === 'this-month') {
+    start = new Date(now.getFullYear(), now.getMonth(), 1);
+  }
+  return { start, end };
+}
+
+function calcMaxExpected(start, fullEnd) {
+  return Math.floor((fullEnd - start) / 1000 / ESP32_INTERVAL_S) * 3;
+}
+function calcElapsedExpected(start, now) {
+  return Math.floor((now - start) / 1000 / ESP32_INTERVAL_S) * 3;
+}
+function getFullPeriodEnd(mode, start) {
+  if (mode === 'today' || mode === 'specific-day') return new Date(start.getFullYear(), start.getMonth(), start.getDate()+1);
+  if (mode === 'this-week' || mode === 'specific-week') return new Date(start.getFullYear(), start.getMonth(), start.getDate()+7);
+  if (mode === 'this-month') return new Date(start.getFullYear(), start.getMonth()+1, 1);
+  return new Date();
+}
+
+function exportHistoryCSV() {
+  if (!currentFiltered.length) return;
+  const headers = ['Timestamp','Appliance','Voltage_V','Current_A','Power_W','Energy_kWh','Cost_PHP','Carbon_kg'];
+  const rows = currentFiltered.map(r => [
+    new Date(r.timestamp).toLocaleString('en-PH',{hour12:false}),
+    r.appliance,
+    r.voltage!=null?r.voltage.toFixed(2):'',
+    r.current_a!=null?r.current_a.toFixed(3):'',
+    r.power_w!=null?r.power_w.toFixed(2):'',
+    r.energy_kwh!=null?r.energy_kwh.toFixed(6):'',
+    r.cost_php!=null?r.cost_php.toFixed(6):'',
+    r.carbon_kg!=null?r.carbon_kg.toFixed(6):''
+  ]);
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  a.download = 'safewatt_' + currentHistoryMode + '_' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+}
+
+async function applyHistoryFilter(mode, btn) {
+  if (!mode) return;
+  currentHistoryMode = mode;
+  if (btn) {
+    document.querySelectorAll('.sw-hfilter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  document.getElementById('hist-date-wrap').style.display = mode==='specific-day' ? 'flex' : 'none';
+  document.getElementById('hist-week-wrap').style.display = mode==='specific-week' ? 'flex' : 'none';
+  if (mode==='specific-day' && !document.getElementById('hist-date-input').value) return;
+  if (mode==='specific-week' && !document.getElementById('hist-week-input').value) return;
+  const range = getDateRange(mode);
+  if (!range) return;
+  const { start, end } = range;
+
+  // Session 21: clear UI to "Loading..." immediately so user sees feedback during fetch
+  // (prevents stale data from previous filter showing while new range is being fetched)
+  setText('hist-query-time', 'Loading…');
+  ['hstat-rice','hstat-tv','hstat-charger','hstat-expected'].forEach(id => setText(id, '…'));
+  setText('hstat-pct', '…');
+  setText('hstat-rate', '…');
+  setText('history-count', 'Loading…');
+  const tbody = document.getElementById('history-tbody');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="sw-empty">Loading…</td></tr>';
+
+  // Session 21: fetch the SPECIFIC date range from backend (was filtering 500-row cap client-side)
+  // Backend returns all rows in window — accurate completeness even after page refresh
+  const toLocalIso = d => {
+    const pad = n => String(n).padStart(2, '0');
+    return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+  };
+  // v19: parallelize the four backend fetches via Promise.all. Was sequential ~1-3s on slow
+  // networks (each await blocked the next). Now bottleneck is the slowest single fetch.
+  // Each fetch's fallback is preserved by mapping a failed fetch to null and branching below.
+  const fromIso = encodeURIComponent(toLocalIso(start));
+  const toIso = encodeURIComponent(toLocalIso(end));
+  const fetchOrNull = function(url) {
+    return fetch(url).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; });
+  };
+  const t0 = performance.now();
+  const [readingsResp, statsResp, gapResp, dedupResp] = await Promise.all([
+    fetchOrNull(BACKEND + '/api/readings?from=' + fromIso + '&to=' + toIso),
+    fetchOrNull(BACKEND + '/api/stats?from=' + fromIso + '&to=' + toIso),
+    fetchOrNull(BACKEND + '/api/gap-time?from=' + fromIso + '&to=' + toIso),
+    fetchOrNull(BACKEND + '/api/dedup-stats?from=' + fromIso + '&to=' + toIso)
+  ]);
+  const t1 = performance.now();
+
+  let filtered;
+  if (readingsResp !== null) {
+    filtered = readingsResp;
+    setText('hist-query-time', 'Q1.3: ' + Math.round(t1-t0) + ' ms · ' + filtered.length + ' rows');
+  } else {
+    // Fallback: filter loaded allReadings (subject to local cache size if backend unreachable)
+    filtered = allReadings.filter(r => {
+      const t = new Date(r.timestamp);
+      return t >= start && t < end;
+    });
+    setText('hist-query-time', 'Q1.3: ' + Math.round(t1-t0) + ' ms (client fallback) · ' + filtered.length + ' rows');
+  }
+
+  // Session 22: /api/stats does server-side COUNT(*); use it when available, else local count.
+  const stats = statsResp;
+  let rice = 0, tv = 0, charger = 0;
+  filtered.forEach(r => {
+    if (r.appliance==='rice_cooker') rice++;
+    else if (r.appliance==='tv') tv++;
+    else if (r.appliance==='phone_charger') charger++;
+  });
+  if (stats) { rice = stats.rice_cooker; tv = stats.tv; charger = stats.phone_charger; }
+  const total = stats ? stats.total : filtered.length;
+  const now = new Date();
+  const fullEnd = getFullPeriodEnd(mode, start);
+  const maxExpected = calcMaxExpected(start, fullEnd);
+
+  // Session 21: TIME-BASED completeness + recording rate (replaces row-count math)
+  // Time-based math directly answers "what fraction of the period had data flowing" — never above 100%.
+  // Session 22: gap_time from /api/gap-time (server-side) instead of computed client-side.
+  let gapTimeMs = 0;
+  if (gapResp !== null) {
+    // Session 23: add pre-monitoring gap when monitoring started after the filter window start.
+    const windowFirstTs = gapResp.window_first_ts ? new Date(gapResp.window_first_ts) : null;
+    const preMonitoringMs = (windowFirstTs && windowFirstTs > start) ? (windowFirstTs - start) : 0;
+    const gapSeconds = gapResp.gap_excess_seconds != null ? gapResp.gap_excess_seconds : gapResp.gap_seconds || 0;
+    gapTimeMs = gapSeconds * 1000 + preMonitoringMs;
+  } else {
+    // Fallback: client-side gap computation from filtered rows
+    const ch1Sorted = filtered.filter(r => r.channel === 1).sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+    for (let i = 1; i < ch1Sorted.length; i++) {
+      const gap = new Date(ch1Sorted[i].timestamp) - new Date(ch1Sorted[i-1].timestamp);
+      if (gap > 10000) gapTimeMs += gap;
+    }
+  }
+  const periodEnd = now < fullEnd ? now : fullEnd;
+  const elapsedMs = periodEnd - start;
+  const fullPeriodMs = fullEnd - start;
+  const dataTimeMs = Math.max(0, elapsedMs - gapTimeMs);
+  // v19: for current periods (today / this-week / this-month) use elapsed denominator so the
+  // tile reads "% of elapsed time covered" — matches Status tab semantics, no surprise drop
+  // mid-period. Specific past periods (specific-day / specific-week) use full-period denominator
+  // since they're complete.
+  const isCurrentPeriod = mode === 'today' || mode === 'this-week' || mode === 'this-month';
+  const completenessDenom = isCurrentPeriod ? elapsedMs : fullPeriodMs;
+  const completeness = completenessDenom > 0 ? Math.min(100, dataTimeMs / completenessDenom * 100) : 0;
+  const recordingRate = elapsedMs > 0 ? Math.min(100, dataTimeMs / elapsedMs * 100) : 0;
+
+  // Session 24 (v17): server-side dedup stats via /api/dedup-stats (backend v26).
+  let uniqueCycles = 0;
+  let duplicateCount = 0;
+  if (dedupResp !== null) {
+    uniqueCycles = dedupResp.unique_cycles || 0;
+    duplicateCount = dedupResp.duplicates || 0;
+  } else {
+    // Fallback: client-side computation (matches Session 21 behavior — only correct when
+    // /api/readings returned the full window, i.e. for windows under the 5000-row cap).
+    const ch1ById = [...filtered.filter(r => r.channel === 1)].sort((a,b) => a.id - b.id);
+    let curSessionUptimes = null;
+    let curSessionLast = -1;
+    ch1ById.forEach(r => {
+      if (curSessionUptimes === null || r.uptime_ms < curSessionLast) {
+        if (curSessionUptimes !== null) uniqueCycles += curSessionUptimes.size;
+        curSessionUptimes = new Set([r.uptime_ms]);
+      } else {
+        curSessionUptimes.add(r.uptime_ms);
+      }
+      curSessionLast = r.uptime_ms;
+    });
+    if (curSessionUptimes !== null) uniqueCycles += curSessionUptimes.size;
+    duplicateCount = Math.max(0, total - uniqueCycles * 3);
+  }
+  setText('hstat-rice', rice);
+  setText('hstat-tv', tv);
+  setText('hstat-charger', charger);
+  setText('hstat-expected', maxExpected);
+  setText('hstat-pct', completeness.toFixed(1) + '%');
+  const pctEl = document.getElementById('hstat-pct');
+  if (pctEl) pctEl.style.color = completeness>=95 ? 'var(--sw-green)' : completeness>=50 ? 'var(--sw-orange)' : 'var(--sw-red)';
+  const bar = document.getElementById('hstat-bar');
+  if (bar) { bar.style.width = completeness+'%'; bar.style.background = completeness>=95?'var(--sw-green)':completeness>=50?'var(--sw-orange)':'var(--sw-red)'; }
+  setText('hstat-rate', recordingRate.toFixed(1) + '%');
+  const rateEl = document.getElementById('hstat-rate');
+  if (rateEl) rateEl.style.color = recordingRate>=95 ? 'var(--sw-green)' : recordingRate>=50 ? 'var(--sw-orange)' : 'var(--sw-red)';
+  const endLabel = end <= new Date() ? end.toLocaleDateString('en-PH') : 'now';
+  // Session 21: show both raw rows AND unique cycles so retry duplicates are visible.
+  // Session 24 (v17): truncation threshold updated 50,000 → 5,000 to match backend v25
+  // /api/readings cap. Duplicate count comes from server (v26 /api/dedup-stats) so it's
+  // accurate regardless of truncation.
+  const truncated = filtered.length >= 5000 && total > filtered.length;
+  const dupNote = (duplicateCount > 50) ? ' · ⚠ ' + duplicateCount.toLocaleString() + ' likely duplicates' : '';
+  const truncNote = truncated ? ' · table showing latest ' + filtered.length.toLocaleString() + ' of ' + total.toLocaleString() : '';
+  setText('history-count', total.toLocaleString() + ' rows · ' + uniqueCycles.toLocaleString() + ' unique cycles' + dupNote + truncNote + ' · ' + start.toLocaleDateString('en-PH') + ' → ' + endLabel);
+  renderHistoryTable(filtered);
+}
+
+function renderAnomalies(data) {
+  allAnomalies = data;
+  const tbody = document.getElementById('anomaly-tbody');
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="sw-empty">No anomalies detected yet.</td></tr>';
+    ['astat-total','astat-shutdowns'].forEach(id => setText(id, '0'));
+    setText('astat-avg', '—');
+    setText('astat-false', '—');
+    alertCount = 0;
+    const badge = document.getElementById('alert-count');
+    if (badge) badge.style.display = 'none';
+    return;
+  }
+  tbody.innerHTML = '';
+  let totalMs=0, msCount=0;
+  data.forEach(row => {
+    const ts = new Date(row.timestamp).toLocaleString('en-PH', { hour12:false });
+    const pct = row.deviation_pct!=null?row.deviation_pct.toFixed(1)+'%':'—';
+    const fillW = Math.min(100,(row.deviation_pct||0)*3);
+    const fillColor = (row.deviation_pct||0)>10?'var(--sw-red)':'var(--sw-orange)';
+    const tagClass = (row.appliance||'').includes('rice')?'sw-tag-rice':(row.appliance||'').includes('tv')?'sw-tag-tv':'sw-tag-charger';
+    if (row.response_time_ms) { totalMs+=row.response_time_ms; msCount++; }
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="color:#9ca3af">${ts}</td>
+      <td><span class="sw-tag ${tagClass}">${displayName(row.appliance)}</span></td>
+      <td style="color:var(--sw-red);font-weight:600">${row.detected_wattage!=null?row.detected_wattage.toFixed(1)+' W':'—'}</td>
+      <td>${row.threshold_wattage!=null?row.threshold_wattage.toFixed(1)+' W':'—'}</td>
+      <td><div style="display:flex;align-items:center;gap:6px"><span>${pct}</span><div class="sw-sev"><div class="sw-sev-fill" style="width:${fillW}%;background:${fillColor}"></div></div></div></td>
+      <td>${row.response_time_ms?(row.response_time_ms/1000).toFixed(2)+'s':'—'}</td>
+      <td><span class="sw-action sw-action-shutdown">${row.action_taken||'relay_off'}</span></td>`;
+    tbody.appendChild(tr);
+  });
+  setText('astat-total', data.length);
+  setText('astat-shutdowns', data.filter(r=>r.action_taken&&r.action_taken.includes('relay')).length);
+  setText('astat-avg', msCount>0?(totalMs/msCount/1000).toFixed(2)+'s':'—');
+  setText('astat-false', '—');
+  alertCount = data.length;
+  const badge = document.getElementById('alert-count');
+  if (badge) { badge.textContent = alertCount; badge.style.display = alertCount>0?'flex':'none'; }
+  setText('anom-today', alertCount);
+}
+
+function renderAnomalyFeed(data) {
+  const feed = document.getElementById('anomaly-feed');
+  if (!data.length) { feed.innerHTML = '<div class="sw-empty">No anomalies detected yet.</div>'; return; }
+  feed.innerHTML = data.slice(0,5).map(row => {
+    const ts = new Date(row.timestamp).toLocaleString('en-PH', { hour12:false });
+    const app = displayName(row.appliance);
+    return `<div class="sw-feed-item">
+      <div class="sw-feed-dot"></div>
+      <div>
+        <div class="sw-feed-text">${app} — ${row.detected_wattage!=null?row.detected_wattage.toFixed(0)+' W detected':'—'} (${row.deviation_pct!=null?row.deviation_pct.toFixed(1)+'% over':'—'})</div>
+        <div class="sw-feed-time">${ts} · ${row.action_taken||'relay_off'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function updateSummary(data) {
+  const ch = { rice_cooker:[], tv:[], phone_charger:[] };
+  data.forEach(row => { if (ch[row.appliance]) ch[row.appliance].push(row); });
+  const alias = { rice_cooker:'rice', tv:'tv', phone_charger:'charger' };
+  // Session 22: fetch authoritative all-time per-appliance counts from server
+  // (was using rows.length which only saw the 500-row /api/readings cache → undercounted)
+  let stats = null;
+  try {
+    const sres = await fetch(BACKEND + '/api/stats');
+    if (sres.ok) stats = await sres.json();
+  } catch {}
+  let gtE=0, gtC=0, gtCO2=0, gtN=0;
+  Object.entries(ch).forEach(([key, rows]) => {
+    const a = alias[key];
+    const e = rows.length>0?rows.reduce((max,r)=>Math.max(max,r.energy_kwh||0),0):0;
+    const c = e*VECO, co2 = e*CARBON_FACTOR;
+    // Avg daily energy — distinct days in dataset for this channel
+    const daySet = new Set(rows.map(r => { const d=new Date(r.timestamp); return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate(); }));
+    const numDays = daySet.size || 1;
+    const avgDaily = e / numDays;
+    // Anomaly count per appliance
+    const anomCount = allAnomalies.filter(a2 => a2.appliance === key).length;
+    const count = stats ? stats[key] : rows.length; // fallback to local count if /api/stats unreachable
+    setText('sum-e-'+a, e.toFixed(4)+' kWh');
+    setText('sum-c-'+a, '₱'+c.toFixed(4));
+    setText('sum-co2-'+a, co2.toFixed(4)+' kg');
+    setText('sum-avg-'+a, avgDaily.toFixed(4)+' kWh/day');
+    setText('sum-anom-'+a, anomCount);
+    setText('sum-n-'+a, count+' readings');
+    gtE+=e; gtC+=c; gtCO2+=co2; gtN+=count;
+  });
+  setText('gt-energy', gtE.toFixed(4)+' kWh');
+  setText('gt-cost', '₱'+gtC.toFixed(2));
+  setText('gt-carbon', gtCO2.toFixed(4)+' kg');
+  setText('gt-readings', gtN);
+  if (gtE>0) {
+    const allDaySet = new Set(data.map(r => { const d=new Date(r.timestamp); return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate(); }));
+    const totalDays = allDaySet.size || 1;
+    const p = (gtE / totalDays) * 30;
+    setText('proj-kwh', p.toFixed(2));
+    setText('proj-cost', '₱'+(p*VECO).toFixed(2));
+    setText('proj-carbon', (p*CARBON_FACTOR).toFixed(2));
+  }
+}
+
+function updateCard(name, row) {
+  const w = row.power_w||0;
+  document.getElementById('w-'+name).innerHTML = w.toFixed(1)+'<span class="sw-watt-unit">W</span>';
+  setText('v-'+name, (row.voltage||0).toFixed(1)+' V');
+  setText('a-'+name, (row.current_a||0).toFixed(2)+' A');
+  setText('e-'+name, (row.energy_kwh||0).toFixed(4)+' kWh');
+  setText('c-'+name, '₱'+(row.cost_php||0).toFixed(4));
+  setText('co2-'+name, (row.carbon_kg||0).toFixed(4)+' kg');
+  setText('cwatt-'+name, w.toFixed(1)+' W · Live');
+  const dev = ((w - baselines[name]) / baselines[name]) * 100;
+  const devEl = document.getElementById('dev-' + name);
+  if (devEl) { devEl.textContent = (dev>=0?'+':'')+dev.toFixed(1)+'%'; devEl.style.color = dev>20?'var(--sw-red)':dev>0?'var(--sw-orange)':'var(--sw-green)'; }
+  pushWatt(name, w);
+  pushCostCarbon(name, row.cost_php||0, row.carbon_kg||0);
+}
+
+function updateTotals(latest) {
+  let e=0,c=0,co2=0;
+  Object.values(latest).forEach(r => { e+=r.energy_kwh||0; c+=r.cost_php||0; co2+=r.carbon_kg||0; });
+  setText('tot-energy', e.toFixed(4)+' kWh');
+  setText('tot-cost', '₱'+c.toFixed(4));
+  setText('tot-carbon', co2.toFixed(4)+' kg');
+}
+
+// ===== SIM =====
+function rand(base, range) { return +(base+(Math.random()*range*2-range)).toFixed(2); }
+function runSim() {
+  ['rice','tv','charger'].forEach(name => {
+    const s = simState[name];
+    const ranges = { rice:15, tv:3, charger:0.5 };
+    s.watt = Math.max(0, rand(s.baseline, ranges[name]));
+    s.volt = rand(220.8, 1.2); s.amp = +(s.watt/s.volt).toFixed(2);
+    s.energy += s.watt/1000/3600*(POLL_MS/1000);
+    s.cost = +(s.energy*VECO).toFixed(4); s.carbon = +(s.energy*CARBON_FACTOR).toFixed(4);
+    document.getElementById('w-'+name).innerHTML = Math.round(s.watt)+'<span class="sw-watt-unit">W</span>';
+    setText('v-'+name, s.volt.toFixed(1)+' V');
+    setText('a-'+name, s.amp.toFixed(2)+' A');
+    setText('e-'+name, s.energy.toFixed(4)+' kWh');
+    setText('c-'+name, '₱'+s.cost);
+    setText('co2-'+name, s.carbon+' kg');
+    setText('cwatt-'+name, Math.round(s.watt)+' W · Sim');
+    pushWatt(name, Math.round(s.watt));
+    const dev = ((s.watt - baselines[name]) / baselines[name]) * 100;
+    const devEl = document.getElementById('dev-' + name);
+    if (devEl) { devEl.textContent = (dev>=0?'+':'')+dev.toFixed(1)+'%'; devEl.style.color = dev>20?'var(--sw-red)':dev>0?'var(--sw-orange)':'var(--sw-green)'; }
+  });
+  const e = simState.rice.energy+simState.tv.energy+simState.charger.energy;
+  setText('tot-energy', e.toFixed(4)+' kWh');
+  setText('tot-cost', '₱'+(e*VECO).toFixed(2));
+  setText('tot-carbon', (e*CARBON_FACTOR).toFixed(4)+' kg');
+}
+
+// ===== POLL =====
+async function poll() {
+  // v19: skip if a prior poll() is still running. Prevents stacked polls during slow-network
+  // periods that would otherwise race on chart updates and the SIM/LIVE badge state.
+  if (pollInFlight) return;
+  pollInFlight = true;
+  try {
+  const latest = await fetchLatestReadings();
+  if (latest && Object.keys(latest).length) {
+    if (!isLive) {
+      isLive = true;
+      document.getElementById('conn-badge').className = 'sw-badge sw-badge-live';
+      setText('conn-text', 'LIVE');
+      setText('conn-text-m', 'LIVE');
+      document.getElementById('conn-badge-m').className = 'sw-badge sw-badge-live';
+      setText('data-source-m', 'SQLite backend');
+      setText('tot-source', 'Live — SQLite');
+      setText('topbar-sub', 'San Fernando, Cebu · Live Data');
+      showNotif('Connected to backend.', false);
+    }
+    Object.entries(latest).forEach(([appliance, row]) => { const name = channelMap[appliance]; if (name) updateCard(name, row); });
+    updateTotals(latest);
+  } else {
+    if (isLive) {
+      isLive = false;
+      document.getElementById('conn-badge').className = 'sw-badge sw-badge-sim';
+      setText('conn-text', 'SIM');
+      setText('conn-text-m', 'SIM');
+      document.getElementById('conn-badge-m').className = 'sw-badge sw-badge-sim';
+      setText('data-source-m', 'Simulation');
+      setText('tot-source', 'Simulation mode');
+      setText('topbar-sub', 'San Fernando, Cebu · Simulation Mode');
+    }
+    runSim();
+  }
+  if (wattChart) wattChart.update('none');
+  if (document.getElementById('view-graphs').classList.contains('active') && wattChart2) wattChart2.update('none');
+  } finally { pollInFlight = false; }
+}
+
+// ===== ANOMALY SIM =====
+// v19: gated behind ?demo URL flag. Not part of the Phase 4 anomaly methodology.
+function simulateAnomaly() {
+  if (!DEMO_MODE) return;
+  const btn = document.getElementById('sim-btn'); btn.disabled = true;
+  const spike = simState.rice.baseline * 1.28;
+  document.getElementById('w-rice').innerHTML = Math.round(spike)+'<span class="sw-watt-unit">W</span>';
+  document.getElementById('status-rice').innerHTML = '<span class="sw-dot"></span>ANOMALY';
+  document.getElementById('status-rice').className = 'sw-badge sw-badge-anomaly';
+  setText('topbar-sub', 'San Fernando, Cebu · ⚠ Over-wattage: Iron');
+  showNotif('Iron: '+Math.round(spike)+'W (+28%). Learned threshold exceeded. Triggering shutdown...', true);
+  setTimeout(() => {
+    document.getElementById('card-rice').classList.add('offline');
+    document.getElementById('ctrl-rice').classList.add('offline');
+    document.getElementById('w-rice').innerHTML = '0<span class="sw-watt-unit">W</span>';
+    document.getElementById('status-rice').innerHTML = '<span class="sw-dot"></span>SHUTDOWN';
+    document.getElementById('status-rice').className = 'sw-badge sw-badge-offline';
+    setText('shut-rice', 'TRIGGERED');
+    document.getElementById('shut-rice').style.color = 'var(--sw-red)';
+    setText('topbar-sub', 'San Fernando, Cebu · Anomaly Resolved');
+    alertCount++;
+    const badge = document.getElementById('alert-count');
+    if (badge) { badge.textContent = alertCount; badge.style.display = 'flex'; }
+    setText('anom-today', alertCount);
+    showNotif('Shutdown executed in 0.83s. Iron disconnected.', false);
+    setTimeout(() => { btn.disabled = false; }, 3000);
+  }, 830);
+}
+
+// ===== NOTIF =====
+function showNotif(msg, isAlert) {
+  const n = document.getElementById('sw-notif');
+  setText('notif-body', msg);
+  setText('notif-title', isAlert ? 'ANOMALY DETECTED' : 'SAFEWATT');
+  n.style.borderLeftColor = isAlert ? 'var(--sw-red)' : 'var(--sw-green)';
+  document.getElementById('notif-title').style.color = isAlert ? 'var(--sw-red)' : 'var(--sw-green)';
+  n.classList.add('show');
+  setTimeout(() => n.classList.remove('show'), 4000);
+}
+
+// ===== CHARTS =====
+const chartOpts = {
+  responsive: true, plugins: { legend: { display:false } },
+  scales: {
+    x: { grid: { color:'#f3f4f6', drawBorder:false }, ticks: { font:{ size:9, family:"'Geist Mono',monospace" }, color:'#9ca3af', maxTicksLimit:6 } },
+    y: { grid: { color:'#f3f4f6', drawBorder:false }, ticks: { font:{ size:9, family:"'Geist Mono',monospace" }, color:'#9ca3af' }, border: { display:false } }
+  }
+};
+function makeWattChart(id) {
+  return new Chart(document.getElementById(id).getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: Array(20).fill(''),
+      datasets: [
+        { data:Array(20).fill(0), borderColor:'#f97316', backgroundColor:'rgba(249,115,22,0.05)', borderWidth:1.5, pointRadius:0, tension:0.4, fill:true },
+        { data:Array(20).fill(0), borderColor:'#2563eb', backgroundColor:'rgba(37,99,235,0.04)',  borderWidth:1.5, pointRadius:0, tension:0.4, fill:true },
+        { data:Array(20).fill(0), borderColor:'#16a34a', backgroundColor:'rgba(22,163,74,0.04)',  borderWidth:1.5, pointRadius:0, tension:0.4, fill:true },
+      ]
+    },
+    options: chartOpts
+  });
+}
+const wattChart  = makeWattChart('wattChart');
+const wattChart2 = makeWattChart('wattChart2');
+const runtimeChartInst = new Chart(document.getElementById('runtimeChart').getContext('2d'), {
+  type: 'bar',
+  data: { labels:['Iron','Channel 2','Channel 3'], datasets:[{ data:[0,0,0], backgroundColor:['rgba(249,115,22,0.7)','rgba(37,99,235,0.7)','rgba(22,163,74,0.7)'], borderRadius:4, borderSkipped:false }] },
+  options: { responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false},ticks:{font:{size:9,family:"'Geist Mono',monospace"},color:'#9ca3af'}}, y:{grid:{color:'#f3f4f6'},ticks:{font:{size:9,family:"'Geist Mono',monospace"},color:'#9ca3af'},border:{display:false}} } }
+});
+const costChartInst = new Chart(document.getElementById('costChart').getContext('2d'), {
+  type: 'line',
+  data: { labels:Array(20).fill(''), datasets:[
+    { data:Array(20).fill(0), borderColor:'#f97316', backgroundColor:'rgba(249,115,22,0.05)', borderWidth:1.5, pointRadius:2, tension:0.4, fill:true },
+    { data:Array(20).fill(0), borderColor:'#2563eb', backgroundColor:'rgba(37,99,235,0.04)',  borderWidth:1.5, pointRadius:2, tension:0.4, fill:true },
+    { data:Array(20).fill(0), borderColor:'#16a34a', backgroundColor:'rgba(22,163,74,0.04)',  borderWidth:1.5, pointRadius:2, tension:0.4, fill:true },
+  ]}, options: chartOpts
+});
+const carbonChartInst = new Chart(document.getElementById('carbonChart').getContext('2d'), {
+  type: 'line',
+  data: { labels:Array(20).fill(''), datasets:[
+    { data:Array(20).fill(0), borderColor:'#f97316', backgroundColor:'rgba(249,115,22,0.05)', borderWidth:1.5, pointRadius:2, tension:0.4, fill:true },
+    { data:Array(20).fill(0), borderColor:'#2563eb', backgroundColor:'rgba(37,99,235,0.04)',  borderWidth:1.5, pointRadius:2, tension:0.4, fill:true },
+    { data:Array(20).fill(0), borderColor:'#16a34a', backgroundColor:'rgba(22,163,74,0.04)',  borderWidth:1.5, pointRadius:2, tension:0.4, fill:true },
+  ]}, options: chartOpts
+});
+const dailyChartInst = new Chart(document.getElementById('dailyChart').getContext('2d'), {
+  type: 'bar',
+  data: { labels:[], datasets:[
+    { label:'Iron', data:[], backgroundColor:'rgba(249,115,22,0.7)', borderRadius:3, stack:'s' },
+    { label:'Channel 2',  data:[], backgroundColor:'rgba(37,99,235,0.7)',  borderRadius:3, stack:'s' },
+    { label:'Channel 3',     data:[], backgroundColor:'rgba(22,163,74,0.7)',  borderRadius:3, stack:'s' },
+  ]},
+  options: { responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false},ticks:{font:{size:9,family:"'Geist Mono',monospace"},color:'#9ca3af'}}, y:{grid:{color:'#f3f4f6'},ticks:{font:{size:9,family:"'Geist Mono',monospace"},color:'#9ca3af'},border:{display:false},title:{display:true,text:'hrs',font:{size:9},color:'#9ca3af'}} } }
+});
+const dailyEnergyChartInst = new Chart(document.getElementById('dailyEnergyChart').getContext('2d'), {
+  type: 'bar',
+  data: { labels:[], datasets:[
+    { label:'Iron', data:[], backgroundColor:'rgba(249,115,22,0.7)', borderRadius:3, stack:'s' },
+    { label:'Channel 2',  data:[], backgroundColor:'rgba(37,99,235,0.7)',  borderRadius:3, stack:'s' },
+    { label:'Channel 3',     data:[], backgroundColor:'rgba(22,163,74,0.7)',  borderRadius:3, stack:'s' },
+  ]},
+  options: { responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false},ticks:{font:{size:9,family:"'Geist Mono',monospace"},color:'#9ca3af'}}, y:{grid:{color:'#f3f4f6'},ticks:{font:{size:9,family:"'Geist Mono',monospace"},color:'#9ca3af'},border:{display:false},title:{display:true,text:'kWh',font:{size:9},color:'#9ca3af'}} } }
+});
+
+function pushWatt(name, w) {
+  const idx = name==='rice'?0:name==='tv'?1:2;
+  [wattChart, wattChart2].forEach(c => {
+    if (!c) return;
+    c.data.datasets[idx].data.push(w);
+    if (c.data.datasets[idx].data.length>20) c.data.datasets[idx].data.shift();
+    c.data.labels.push('');
+    if (c.data.labels.length>20) c.data.labels.shift();
+  });
+}
+
+function pushCostCarbon(name, cost, carbon) {
+  const idx = name==='rice'?0:name==='tv'?1:2;
+  [[costChartInst, cost],[carbonChartInst, carbon]].forEach(([chart, val]) => {
+    if (!chart) return;
+    chart.data.datasets[idx].data.push(val);
+    if (chart.data.datasets[idx].data.length>20) chart.data.datasets[idx].data.shift();
+    chart.data.labels.push('');
+    if (chart.data.labels.length>20) chart.data.labels.shift();
+    chart.update('none');
+  });
+}
+
+function buildDailyChart() {
+  if (!dailyChartInst || !allReadings.length) return;
+  const now = new Date();
+  const days = graphsTF==='30d' ? 30 : graphsTF==='7d' ? 7 : 1;
+  const cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (days-1));
+  const dayKeys = [];
+  for (let i=days-1; i>=0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate()-i);
+    dayKeys.push(d.toLocaleDateString('en-PH',{month:'short',day:'numeric'}));
+  }
+  const riceHrs = Array(days).fill(0), tvHrs = Array(days).fill(0), chargerHrs = Array(days).fill(0);
+  const riceKwh = Array(days).fill(0), tvKwh = Array(days).fill(0), chargerKwh = Array(days).fill(0);
+  allReadings.forEach(r => {
+    const t = new Date(r.timestamp);
+    if (t < cutoff) return;
+    const dayIdx = Math.floor((new Date(t.getFullYear(),t.getMonth(),t.getDate()) - cutoff) / 86400000);
+    if (dayIdx < 0 || dayIdx >= days) return;
+    const hrs = ESP32_INTERVAL_S/3600;
+    const kwh = (r.power_w||0) * ESP32_INTERVAL_S / 3600000;
+    if (r.appliance==='rice_cooker') { riceHrs[dayIdx]+=hrs; riceKwh[dayIdx]+=kwh; }
+    else if (r.appliance==='tv') { tvHrs[dayIdx]+=hrs; tvKwh[dayIdx]+=kwh; }
+    else if (r.appliance==='phone_charger') { chargerHrs[dayIdx]+=hrs; chargerKwh[dayIdx]+=kwh; }
+  });
+  dailyChartInst.data.labels = dayKeys;
+  dailyChartInst.data.datasets[0].data = riceHrs.map(v=>+v.toFixed(2));
+  dailyChartInst.data.datasets[1].data = tvHrs.map(v=>+v.toFixed(2));
+  dailyChartInst.data.datasets[2].data = chargerHrs.map(v=>+v.toFixed(2));
+  dailyChartInst.update();
+  setText('daily-chart-sub', `Monitoring hours per appliance — last ${days===1?'24h':days+'d'}`);
+  if (runtimeChartInst) {
+    const totalRice = riceHrs.reduce((a,b)=>a+b,0);
+    const totalTv = tvHrs.reduce((a,b)=>a+b,0);
+    const totalCharger = chargerHrs.reduce((a,b)=>a+b,0);
+    runtimeChartInst.data.datasets[0].data = [+totalRice.toFixed(2), +totalTv.toFixed(2), +totalCharger.toFixed(2)];
+    runtimeChartInst.update();
+  }
+  if (dailyEnergyChartInst) {
+    dailyEnergyChartInst.data.labels = dayKeys;
+    dailyEnergyChartInst.data.datasets[0].data = riceKwh.map(v=>+v.toFixed(4));
+    dailyEnergyChartInst.data.datasets[1].data = tvKwh.map(v=>+v.toFixed(4));
+    dailyEnergyChartInst.data.datasets[2].data = chargerKwh.map(v=>+v.toFixed(4));
+    dailyEnergyChartInst.update();
+    setText('daily-energy-chart-sub', `kWh per appliance — last ${days===1?'24h':days+'d'}`);
+  }
+}
+
+// [JS-INIT-START]
+// ===== STATUS TAB =====
+// [JS-STATUS-START]
+// Session 23: made async so it can fetch /api/data-span once for true deployment start.
+// Fixes: Total Monitoring showing ~0.4 hrs (was sorted[0] = last 25 min of loaded cache),
+// Calendar showing only today (same root cause), gap counts showing 0 (was from allReadings
+// local window, not server-verified).
+async function renderStatus() {
+  if (!allReadings.length) {
+    const badge = document.getElementById('st-esp32-badge');
+    if (badge) badge.className = 'sw-badge sw-badge-' + (isLive ? 'live' : 'sim');
+    setText('st-esp32-status', isLive ? 'ONLINE' : 'SIM MODE');
+  }
+  const latestMap = await fetchLatestReadings();
+  const latestRows = latestMap ? Object.values(latestMap) : [];
+  const sorted = [...allReadings].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+  const latestSorted = latestRows.length ? latestRows.sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)) : sorted;
+  if (!latestSorted.length) return;
+  const now = new Date();
+
+  // Fetch true deployment start once — reused for Total Monitoring, Calendar, and All-Time completeness
+  let deployFirstTs = sorted.length ? new Date(sorted[0].timestamp) : new Date(latestSorted[0].timestamp); // fallback to loaded oldest
+  try {
+    const spanRes = await fetch(BACKEND + '/api/data-span');
+    if (spanRes.ok) { const span = await spanRes.json(); if (span.first_ts) deployFirstTs = new Date(span.first_ts); }
+  } catch {}
+
+  // Section 1 — Live System Status
+  const lastTs = latestSorted.length ? new Date(latestSorted[latestSorted.length-1].timestamp) : null;
+  const secsSinceLast = lastTs ? (now - lastTs) / 1000 : Infinity;
+  const lastRow = latestSorted.length ? latestSorted[latestSorted.length-1] : null;
+  const esp32UptimeMs = lastRow && lastRow.uptime_ms ? lastRow.uptime_ms : null;
+  const badge = document.getElementById('st-esp32-badge');
+  if (!isLive) {
+    if (badge) badge.className = 'sw-badge sw-badge-sim';
+    setText('st-esp32-status', 'SIM MODE');
+    setText('st-last-seen', '—');
+    setText('st-uptime-streak', '—');
+  } else if (secsSinceLast <= ESP32_INTERVAL_S * 5) {
+    if (badge) badge.className = 'sw-badge sw-badge-live';
+    setText('st-esp32-status', 'ONLINE');
+    setText('st-last-seen', lastTs.toLocaleString('en-PH', {hour12:false}));
+  } else {
+    if (badge) badge.className = 'sw-badge sw-badge-offline';
+    setText('st-esp32-status', 'OFFLINE');
+    setText('st-last-seen', lastTs ? lastTs.toLocaleString('en-PH', {hour12:false}) : '—');
+  }
+  // ESP32 uptime — use real uptime_ms if available, otherwise fall back to inferred streak
+  if (esp32UptimeMs !== null) {
+    const uptimeSec = Math.floor(esp32UptimeMs / 1000);
+    const h = Math.floor(uptimeSec / 3600);
+    const m = Math.floor((uptimeSec % 3600) / 60);
+    const s = uptimeSec % 60;
+    setText('st-uptime-streak', h>0 ? h+'h '+m+'m' : m>0 ? m+'m '+s+'s' : s+'s');
+    // Detect reboot — if uptime_ms is less than 2 intervals, ESP32 just rebooted
+    if (esp32UptimeMs < POLL_MS * 2) showNotif('ESP32 rebooted — uptime reset detected.', false);
+  } else {
+    // Fallback: walk backwards through readings until gap > 20s
+    let streakStart = lastTs;
+    if (sorted.length >= 2) {
+      for (let i = sorted.length - 2; i >= 0; i--) {
+        const diff = (new Date(sorted[i+1].timestamp) - new Date(sorted[i].timestamp)) / 1000;
+        if (diff > 20) { streakStart = new Date(sorted[i+1].timestamp); break; }
+        if (i === 0) streakStart = new Date(sorted[0].timestamp);
+      }
+    }
+    if (lastTs && streakStart) {
+      const mins = Math.floor((now - streakStart) / 60000);
+      const hrs = Math.floor(mins / 60);
+      setText('st-uptime-streak', hrs > 0 ? hrs+'h '+(mins%60)+'m' : mins+'m');
+    }
+  }
+  // Session 23: use deployFirstTs (from /api/data-span) instead of sorted[0]
+  setText('st-total-hours', ((now - deployFirstTs) / 3600000).toFixed(1) + ' hrs');
+
+  // Section 2 — Gap Detection
+  // Gap TABLE: built from allReadings local window (recent data only — limited by LIMIT 500 + incremental)
+  // Gap COUNTS: fetched server-side in Section 4 and updated there — initialized to '…' while in-flight
+  const rice = sorted.filter(r => r.appliance === 'rice_cooker');
+  const localGaps = [];
+  for (let i = 1; i < rice.length; i++) {
+    const prev = new Date(rice[i-1].timestamp);
+    const curr = new Date(rice[i].timestamp);
+    const diffSec = (curr - prev) / 1000;
+    if (diffSec > 10) localGaps.push({ start: prev, end: curr, durationSec: diffSec });
+  }
+  const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const weekStart = new Date(now); weekStart.setDate(now.getDate() - (now.getDay()||7) + 1); weekStart.setHours(0,0,0,0);
+  // Counts will be overwritten by server-side values from Section 4 callbacks
+  setText('st-gaps-today', '…');
+  setText('st-gaps-week', '…');
+  setText('st-gaps-total', '…');
+  const gapTbody = document.getElementById('st-gap-tbody');
+  if (!localGaps.length) {
+    gapTbody.innerHTML = '<tr><td colspan="4" class="sw-empty" style="color:#9ca3af;font-size:11px">No gaps in loaded data window — server-verified counts shown above.</td></tr>';
+  } else {
+    gapTbody.innerHTML = [...localGaps].reverse().slice(0,50).map(g => {
+      const isLong  = g.durationSec >= 300;
+      const isShort = g.durationSec >= 20;
+      const color = isLong ? 'var(--sw-red)' : isShort ? 'var(--sw-orange)' : '#9ca3af';
+      const bg    = isLong ? '#fff8f8' : isShort ? '#fffbeb' : '#ffffff';
+      const label = isLong ? 'LONG' : isShort ? 'SHORT' : 'MINOR';
+      const dur   = g.durationSec < 60 ? g.durationSec.toFixed(0)+'s' : (g.durationSec/60).toFixed(1)+'m';
+      return `<tr style="background:${bg}">
+        <td style="color:#9ca3af">${g.start.toLocaleString('en-PH',{hour12:false})}</td>
+        <td style="color:#9ca3af">${g.end.toLocaleString('en-PH',{hour12:false})}</td>
+        <td style="font-weight:600;color:${color}">${dur}</td>
+        <td><span style="padding:1px 7px;border-radius:4px;font-size:9px;font-weight:700;background:${bg};color:${color};border:1px solid ${color};font-family:var(--font-ui);text-transform:uppercase;">${label}</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Section 3 — Daily Uptime Grid
+  // Session 23 (revised): TIME-BASED per-day completeness, consistent with /api/gap-time +
+  // History tab math. Old row-based math broke for: (a) Apr 25 (partial day, expected
+  // assumed 24h → false 47%), (b) days with reboot duplicates (count > expected → false 100%),
+  // (c) inconsistency with rest of dashboard.
+  // Now: server returns {count, gap_seconds, gap_count, first_ts, last_ts} per day.
+  // data_time_in_day = day_duration - pre_silence - post_silence - within_data_gaps
+  // where pre_silence = first_ts - day_start (if data starts mid-day)
+  //       post_silence = day_end - last_ts (if data ends before day_end, with cycle tolerance)
+  //       within_data_gaps = server-summed gaps > 10s on that day
+  const firstDay = new Date(deployFirstTs); firstDay.setHours(0,0,0,0);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+  const calPad = function(n) { return String(n).padStart(2, '0'); };
+  const toDateStr = function(d) { return d.getFullYear()+'-'+calPad(d.getMonth()+1)+'-'+calPad(d.getDate()); };
+  const CYCLE_TOLERANCE_MS = ESP32_INTERVAL_S * 2 * 1000; // tolerate 2 cycles before flagging silence
+  function buildCalendar(serverDayMap) {
+    const grid = document.getElementById('st-cal-grid');
+    let calHtml = '';
+    const calCur = new Date(firstDay);
+    let calTotalDays = 0;
+    while (calCur <= today) {
+      calTotalDays++;
+      const calKey = toDateStr(calCur);
+      const data = serverDayMap[calKey];
+      const isToday = calCur.getTime() === today.getTime();
+      const dayStartMs = calCur.getTime();
+      const dayEndMs = isToday ? now.getTime() : (dayStartMs + 86400000);
+      const dayDurationMs = dayEndMs - dayStartMs;
+      let pct = 0;
+      let count = 0;
+      let hasData = false;
+      if (data && data.first_ts) {
+        hasData = true;
+        count = data.count || 0;
+        const firstTsMs = new Date(data.first_ts).getTime();
+        const lastTsMs = new Date(data.last_ts).getTime();
+        const preSilenceMs = Math.max(0, firstTsMs - dayStartMs - CYCLE_TOLERANCE_MS);
+        const postSilenceMs = Math.max(0, dayEndMs - lastTsMs - CYCLE_TOLERANCE_MS);
+        const gapSeconds = data.gap_excess_seconds != null ? data.gap_excess_seconds : data.gap_seconds || 0;
+        const withinGapsMs = gapSeconds * 1000;
+        const totalGapMs = preSilenceMs + postSilenceMs + withinGapsMs;
+        const dataTimeMs = Math.max(0, dayDurationMs - totalGapMs);
+        pct = dayDurationMs > 0 ? Math.min(100, dataTimeMs / dayDurationMs * 100) : 0;
+      } else if (data) {
+        count = data.count || 0;
+      }
+      const color = !hasData ? '#e5e7eb' : pct >= 95 ? '#16a34a' : pct >= 50 ? '#f97316' : '#dc2626';
+      const label = calCur.toLocaleDateString('en-PH', {month:'short', day:'numeric'});
+      const dateVal = calCur.toISOString().split('T')[0];
+      calHtml += '<div title="'+label+': '+pct.toFixed(1)+'% ('+count+' records)" onclick="jumpToHistoryDay(\''+dateVal+'\')" style="width:18px;height:18px;border-radius:3px;background:'+color+';cursor:pointer;flex-shrink:0;transition:opacity 0.1s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1"></div>';
+      calCur.setDate(calCur.getDate() + 1);
+    }
+    if (grid) grid.innerHTML = calHtml;
+    setText('st-cal-days', calTotalDays + ' day' + (calTotalDays!==1?'s':'') + ' monitored · click any cell to filter History');
+  }
+  // Initial gray placeholder while server fetch is in flight
+  buildCalendar({});
+  const dailyStatsKey = toDateStr(firstDay) + ':' + toDateStr(tomorrow);
+  if (statusDailyStatsCache && statusDailyStatsKey === dailyStatsKey) {
+    buildCalendar(statusDailyStatsCache);
+  } else {
+    fetch(BACKEND + '/api/daily-stats?from=' + encodeURIComponent(toDateStr(firstDay)+'T00:00:00') + '&to=' + encodeURIComponent(toDateStr(tomorrow)+'T00:00:00'))
+      .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+      .then(function(dm) { statusDailyStatsCache = dm; statusDailyStatsKey = dailyStatsKey; buildCalendar(dm); })
+      .catch(function() {});
+  }
+
+  // Section 4 — Completeness Summary
+  // Session 21: time-based completeness via server-side /api/gap-time
+  //   Row-based math inflated past 100% when retry duplicates were present → switched to time-based.
+  // Session 22: All-Time start fetched from /api/data-span (true first reading), not sorted[0].
+  //   Old behavior — sorted[0] of allReadings was the oldest of the LIMIT-500 cache slice (~24 min ago)
+  //   → All-Time always showed ~100% regardless of real history.
+  const toLocalIso = d => {
+    const pad = n => String(n).padStart(2, '0');
+    return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+  };
+  // Session 23: gapCountId param — if provided, also updates that element with server gap_count.
+  // Pre-monitoring gap fix: when window starts before the first data row, gap_seconds from the
+  // LAG query misses the silence before the first row. window_first_ts (new in /api/gap-time v2)
+  // lets us add that silence explicitly.
+  function computeStCompleteness(p, gapCountId) {
+    const elapsedMs = now - p.start;
+    fetch(BACKEND + '/api/gap-time?from=' + encodeURIComponent(toLocalIso(p.start)) + '&to=' + encodeURIComponent(toLocalIso(now)))
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(data => {
+        const windowFirstTs = data.window_first_ts ? new Date(data.window_first_ts) : null;
+        const preMonitoringMs = (windowFirstTs && windowFirstTs > p.start)
+          ? (windowFirstTs - p.start) : 0;
+        const gapSeconds = data.gap_excess_seconds != null ? data.gap_excess_seconds : data.gap_seconds || 0;
+        const totalGapMs = gapSeconds * 1000 + preMonitoringMs;
+        const dataMs = Math.max(0, elapsedMs - totalGapMs);
+        const pct = elapsedMs > 0 ? Math.min(100, dataMs / elapsedMs * 100) : 0;
+        const el = document.getElementById(p.id);
+        if (el) { el.textContent = pct.toFixed(1)+'%'; el.style.color = pct>=95?'var(--sw-green)':pct>=50?'var(--sw-orange)':'var(--sw-red)'; }
+        if (gapCountId) setText(gapCountId, data.gap_count != null ? data.gap_count : '—');
+      })
+      .catch(() => {
+        // Fallback: row-based estimate (less accurate when duplicates exist)
+        const count = sorted.filter(r => { const t = new Date(r.timestamp); return t >= p.start && t <= now; }).length;
+        const expected = Math.floor((now - p.start) / 1000 / ESP32_INTERVAL_S) * 3;
+        const pct = expected > 0 ? Math.min(100, count / expected * 100) : 0;
+        const el = document.getElementById(p.id);
+        if (el) { el.textContent = pct.toFixed(1)+'% *'; el.style.color = pct>=95?'var(--sw-green)':pct>=50?'var(--sw-orange)':'var(--sw-red)'; }
+        if (gapCountId) setText(gapCountId, localGaps.filter(g => g.start >= p.start).length + '*');
+      });
+  }
+  // Today / Week / Month — also pass gap count element IDs so Section 2 counts get server values
+  computeStCompleteness({ id:'st-comp-today',   start: dayStart },   'st-gaps-today');
+  computeStCompleteness({ id:'st-comp-week',    start: weekStart },  'st-gaps-week');
+  computeStCompleteness({ id:'st-comp-month',   start: new Date(now.getFullYear(), now.getMonth(), 1) }, null);
+  // All-Time — uses deployFirstTs (already fetched at function top)
+  computeStCompleteness({ id:'st-comp-alltime', start: deployFirstTs }, 'st-gaps-total');
+}
+
+function jumpToHistoryDay(dateStr) {
+  if (!historyLoaded) { fetchHistory(); historyLoaded = true; }
+  document.getElementById('hist-date-input').value = dateStr;
+  showView('history');
+  document.querySelectorAll('.sw-hfilter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.sw-hfilter-btn')[1].classList.add('active');
+  applyHistoryFilter('specific-day');
+  document.querySelectorAll('.sw-navtab, .sw-mobile-navitem').forEach(n => {
+    n.classList.remove('active');
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'history'")) n.classList.add('active');
+  });
+}
+// [JS-STATUS-END]
+// v19: hide simulate-anomaly button unless ?demo is in the URL
+if (!DEMO_MODE) {
+  const simBtn = document.getElementById('sim-btn');
+  if (simBtn) simBtn.style.display = 'none';
+}
+lucide.createIcons();
+poll();
+setInterval(poll, POLL_MS);
+setInterval(() => { if (historyLoaded) fetchHistoryIncremental(); }, 30000);
+// v22: fetch anomalies unconditionally. Previously gated on anomalyLoaded, so the Live
+// tab's Recent Anomalies feed and the session anomaly counter never populated until the
+// user happened to open the Anomaly tab. 36 real anomalies existed in the DB and the
+// dashboard showed 'No anomalies detected yet.'
+fetchAnomalies();
+setInterval(fetchAnomalies, 30000);
+syncRelayState();
+setInterval(syncRelayState, 5000);
+setInterval(() => { if (document.getElementById('view-status').classList.contains('active')) renderStatus(); }, 30000);
+</script>
+</body>
+</html>
